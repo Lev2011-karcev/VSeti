@@ -1,0 +1,372 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>ВСети.ру —  p2p-версия</title>
+    <script src="https://cdn.jsdelivr.net/npm/gun/gun.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/gun/sea.js"></script>
+    <style>
+        body { background-color: #f7f7f7; color: #1c1e21; font-family: Tahoma, Arial, sans-serif; font-size: 12px; margin: 0; padding: 0; }
+        .verh_panel { background-color: #3b5998; border-bottom: 1px solid #29487d; color: #ffffff; padding: 12px 0; position: sticky; top: 0; z-index: 100; }
+        .shirina_polosa { max-width: 620px; margin: 0 auto; padding: 0 10px; display: flex; justify-content: space-between; align-items: center; }
+        .logotip_seti { font-size: 20px; font-weight: bold; letter-spacing: -1px; }
+        .osnovnoy_bazar { max-width: 620px; margin: 10px auto; padding: 0 8px; box-sizing: border-box; }
+        .nav_vkladki { display: flex; border-bottom: 1px solid #bdc7d8; margin-bottom: 12px; background: #eceff5; }
+        .vkladka_knopka { padding: 10px 14px; color: #3b5998; text-decoration: none; font-weight: bold; cursor: pointer; flex: 1; text-align: center; font-size: 12px; }
+        .vkladka_knopka.aktivnaya_vkladka { background-color: #ffffff; border: 1px solid #bdc7d8; border-bottom: 1px solid #ffffff; color: #000000; }
+        .belaya_korobka { background-color: #ffffff; border: 1px solid #bdc7d8; padding: 10px; margin-bottom: 12px; }
+        .zagolovok_korobki { background-color: #eceff5; border: 1px solid #d8dfea; color: #3b5998; font-weight: bold; padding: 6px; margin-bottom: 10px; font-size: 12px; }
+        .tekstovoe_pole { border: 1px solid #bdc7d8; font-family: Arial; font-size: 13px; padding: 6px; width: 100%; box-sizing: border-box; margin-bottom: 8px; }
+        .knopka_sinyaya { background-color: #5b74a8; border: 1px solid #29447e; color: #ffffff; font-weight: bold; padding: 6px 14px; cursor: pointer; font-size: 12px; }
+        .knopka_seraya { background-color: #f2f2f2; border: 1px solid #999; color: #333; font-weight: bold; padding: 6px 14px; cursor: pointer; font-size: 12px; }
+        
+        .kartochка_posta { border-bottom: 1px dotted #bdc7d8; padding: 12px 0; display: flex; gap: 10px; position: relative; }
+        .mini_ava { width: 36px; height: 36px; border-radius: 50%; object-fit: cover; background: #e1e1e1; flex-shrink: 0; }
+        .pravaya_chast_posta { flex: 1; min-width: 0; }
+        .avtor_posta { color: #3b5998; font-weight: bold; text-decoration: none; font-size: 13px; }
+        .vremya_posta { color: #777; font-size: 10px; margin-left: 5px; }
+        .tekst_posta { font-size: 13px; margin-top: 6px; line-height: 15px; word-wrap: break-word; }
+        .kartinka_v_poste { margin-top: 8px; border: 1px solid #d8dfea; padding: 2px; max-width: 100%; max-height: 280px; display: block; }
+        .line_laykov { margin-top: 10px; display: flex; align-items: center; justify-content: space-between; }
+        .knopka_serdechko { font-size: 16px; color: #bdc7d8; cursor: pointer; user-select: none; }
+        .knopka_serdechko.aktivniy_layk { color: #e0245e; }
+        .knopka_del_posta { color: #cc0000; background: none; border: none; font-size: 11px; cursor: pointer; padding: 0; }
+        
+        .blok_profilya_verh { display: flex; flex-direction: row; gap: 12px; }
+        .ava_ramka { width: 90px; height: 90px; border: 1px solid #bdc7d8; display: flex; align-items: center; justify-content: center; overflow: hidden; flex-shrink: 0; }
+        .ava_kartinka { width: 100%; height: 100%; object-fit: cover; }
+        .anketa_info { font-size: 12px; line-height: 18px; flex: 1; }
+        .skritiy_blok { display: none !important; }
+
+        /* Тачи и мобилки */
+        @media (max-width: 480px) {
+            .blok_profilya_verh { flex-direction: column; align-items: center; text-align: center; }
+            .knopka_sinyaya, .knopka_seraya { width: 100%; text-align: center; padding: 10px; margin-bottom: 4px; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Экран Входа -->
+    <div id="ekran_avtorizacii" class="belaya_korobka" style="max-width: 360px; margin: 40px auto; padding: 15px;">
+        <div class="zagolovok_korobki">Вход ВСети</div>
+        <input id="burmalda" type="text" class="tekstovoe_pole" placeholder="Логин (eng)">
+        <input id="osika_v_teset" type="password" class="tekstovoe_pole" placeholder="Пароль">
+        <button id="knopka_vxoda" class="knopka_sinyaya" style="margin-bottom:6px;">Войти</button>
+        <button id="knopka_regi" class="knopka_seraya">Регистрация</button>
+        <div id="oshibka_vvoda" style="color: #dd0000; margin-top: 10px; font-weight: bold; text-align:center;"></div>
+    </div>
+
+    <!-- Главный Экран -->
+    <div id="glavniy_ekran" class="skritiy_blok">
+        <div class="verh_panel">
+            <div class="shirina_polosa">
+                <div class="logotip_seti">ВСети</div>
+                <div style="font-size:11px;"><a id="knopka_vixoda" href="#" style="color: white; font-weight: bold; text-decoration:none;">Выход</a></div>
+            </div>
+        </div>
+
+        <div class="osnovnoy_bazar">
+            <div class="nav_vkladki">
+                <div id="vkladka_lenta_knopka" class="vkladka_knopka aktivnaya_vkladka" onclick="pereklyuchit_vkladku('lenta')">Лента</div>
+                <div id="vkladka_profil_knopka" class="vkladka_knopka" onclick="pereklyuchit_vkladku('profil')">Профиль</div>
+            </div>
+
+            <!-- Вкладка Ленты -->
+            <div id="okno_lenta">
+                <div class="belaya_korobka">
+                    <select id="vibor_statusa" class="tekstovoe_pole" style="width: auto;">
+                        <option value="📱">📱 С телефона</option>
+                        <option value="🔥">🔥 Активен</option>
+                        <option value="☕" selected>☕ Отдыхаю</option>
+                        <option value="🎋">🎋 Бамбуковый граф </option>
+                        <option value="🎧">🎧 Слушаю музыку</option>
+                        <option value="😓">😓 Занят</option>
+                    </select>
+                    <textarea id="tekst_novogo_posta" rows="2" class="tekstovoe_pole" maxlength="280" placeholder="Напишите мысль на стене..."></textarea>
+                    <input type="file" id="gus_hrustalniy" accept="image/*" class="tekstovoe_pole" style="font-size:11px;">
+                    <button id="otpravit_v_lentu" class="knopka_sinyaya" style="width:100%;">Опубликовать</button>
+                </div>
+                <div class="belaya_korobka">
+                    <div class="zagolovok_korobki">Общая лента p2p</div>
+                    <div id="lenta_postov"></div>
+                </div>
+            </div>
+
+            <!-- Вкладка Профиля -->
+            <div id="okno_profil" class="skritiy_blok">
+                <div class="belaya_korobka">
+                    <div class="zagolovok_korobki" id="zagol_anketi">Анкета пользователя</div>
+                    
+                    <div class="blok_profilya_verh">
+                        <div class="ava_ramka" id="profil_avatar_container">
+                            <span class="ava_zaglushka">👤</span>
+                        </div>
+                        <div class="anketa_info">
+                            <strong>Пользователь:</strong> <span id="anketa_name">-</span><br>
+                            <strong>Рейтинг (всего лайков):</strong> <span id="anketa_likes_count">0</span><br>
+                            <strong>ВСети.мессенджер:</strong> <span id="anketa_messenger_nick" style="color:#3b5998; font-weight:bold;">не указан</span><br>
+                            <strong>Дата регистрации:</strong> <span id="anketa_reg_date">-</span><br>
+                            <strong>На сайте уже:</strong> <span id="anketa_site_age">-</span>
+                        </div>
+                    </div>
+
+                    <!-- Поле настройки никнейма мессенджера (только для себя) -->
+                    <div id="blok_izmeneniya_messenger" style="margin-top: 12px; border-top: 1px dotted #bdc7d8; padding-top: 8px;">
+                        <label style="font-size:10px; color:#555; display:block; margin-bottom:3px;">Ваш ник для ВСети.мессенджер (без пробелов):</label>
+                        <div style="display:flex; gap:5px;">
+                            <input type="text" id="vvod_messenger_nick" class="tekstovoe_pole" style="margin:0;" placeholder="Например: danya777">
+                            <button class="knopka_sinyaya" onclick="sohranit_nick_messengera()">Сохранить ник</button>
+                        </div>
+                    </div>
+
+                    <div id="blok_zagruzki_ava" style="margin-top: 10px;">
+                        <label style="font-size:10px; color:#555; display:block; margin-bottom:3px;">Сменить фото профиля:</label>
+                        <input type="file" id="vibor_ava" accept="image/*" style="font-size:10px;" onchange="izmenit_avatar(this)">
+                    </div>
+
+                    <div id="blok_knopki_vernutsya" class="skritiy_blok" style="margin-top:15px;">
+                        <button class="knopka_seraya" style="width:100%;" onclick="smotret_svoy_profil()">Вернуться к моему профилю</button>
+                    </div>
+                </div>
+
+                <div class="belaya_korobka">
+                    <div class="zagolovok_korobki" id="zagolovok_sten_usera">Стена пользователя</div>
+                    <div id="lenta_postov_usera"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const dmitriy_gundon = Gun(['https://gun-manhattan.herokuapp.com/gun', 'https://gundb-relay.onrender.com/gun']);
+        const kents_v_seti = dmitriy_gundon.user().recall({ sessionStorage: true });
+        const ambukoviy_graf = dmitriy_gundon.get('moodin_p2p_fbook_v10');
+        const layki_baza = dmitriy_gundon.get('moodin_p2p_fbook_likes_v10');
+        const profili_baza = dmitriy_gundon.get('moodin_p2p_fbook_profiles_v10');
+
+        let danya_usera = JSON.parse(localStorage.getItem('vofshiy_yuzer')) || null;
+        let cherniy_banan = JSON.parse(localStorage.getItem('kash_postov')) || [];
+        let globalnie_layki = {}, globalnie_profili = {}, tekuschiy_prosmotr_юзера = null;
+
+        document.addEventListener('DOMContentLoaded', () => {
+            proverka_kenta();
+            document.getElementById('otpravit_v_lentu').onclick = () => {
+                const t = document.getElementById('tekst_novogo_posta').value.trim();
+                const fil = document.getElementById('gus_hrustalniy').files[0];
+                if (!t && !fil) return;
+                if (fil) { szhat_kartinku(fil, 450, (kod) => { sozdat_post_v_baze(t, kod); }); } 
+                else { sozdat_post_v_baze(t, ''); }
+            };
+            document.getElementById('knopka_vixoda').onclick = (e) => { e.preventDefault(); kents_v_seti.leave(); localStorage.removeItem('vofshiy_yuzer'); location.reload(); };
+        });
+
+        function sozdat_post_v_baze(text, imgData) {
+            const p_id = 'post_' + Date.now() + '_' + Math.random().toString(36).substr(2, 4);
+            ambukoviy_graf.get(p_id).put({
+                id: p_id, author: danya_usera.name, text: text, img: imgData, mood: document.getElementById('vibor_statusa').value,
+                time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }), timestamp: Date.now(), deleted: false
+            });
+            document.getElementById('tekst_novogo_posta').value = '';
+            document.getElementById('gus_hrustalniy').value = '';
+        }
+
+        function удалитьПост(p_id) {
+            if(confirm('Удалить эту публикацию со стены навсегда?')) {
+                ambukoviy_graf.get(p_id).get('deleted').put(true);
+            }
+        }
+
+        function proverka_kenta() {
+            if (danya_usera) { tekuschiy_prosmotr_юзера = danya_usera.name; pereklyuchit_ekran('glavniy_ekran'); init_paneli(); } 
+            else { pereklyuchit_ekran('ekran_avtorizacii'); svyazat_knopki_vxoda(); }
+        }
+
+        function pereklyuchit_ekran(id) {
+            document.getElementById('ekran_avtorizacii').className = id === 'ekran_avtorizacii' ? 'belaya_korobka' : 'skritiy_blok';
+            document.getElementById('glavniy_ekran').className = id === 'glavniy_ekran' ? '' : 'skritiy_blok';
+        }
+
+        function pereklyuchit_vkladku(imya) {
+            document.getElementById('okno_lenta').className = imya === 'lenta' ? '' : 'skritiy_blok';
+            document.getElementById('okno_profil').className = imya === 'profil' ? '' : 'skritiy_blok';
+            document.getElementById('vkladka_lenta_knopka').className = 'vkladka_knopka' + (imya === 'lenta' ? ' aktivnaya_vkladка' : '');
+            document.getElementById('vkladka_profil_knopka').className = 'vkladka_knopka' + (imya === 'profil' ? ' aktivnaya_vkladка' : '');
+            if (imya === 'profil') obnovit_kartochku_profilya();
+        }
+
+        function init_paneli() { slushat_set_ambukov(); slushat_set_laykov(); slushat_set_profiley(); }
+
+        function slushat_set_ambukov() {
+            ambukoviy_graf.map().on((data) => {
+                if (!data || !data.id || !data.author) return;
+                
+                if (data.deleted) {
+                    cherniy_banan = cherniy_banan.filter(p => p.id !== data.id);
+                } else {
+                    const idx = cherniy_banan.findIndex(p => p.id === data.id);
+                    if (idx !== -1) cherniy_banan[idx] = data; 
+                    else cherniy_banan.push(data);
+                }
+
+                cherniy_banan.sort((a, b) => b.timestamp - a.timestamp);
+                localStorage.setItem('kash_postov', JSON.stringify(cherniy_banan));
+                risovat_lentu(); risovat_lentu_profilya(); obnovit_kartochku_profilya();
+            });
+        }
+
+        function slushat_set_laykov() { layki_baza.map().on((val, key) => { if (key) { globalnie_layki[key] = val; risovat_lentu(); risovat_lentu_profilya(); } }); }
+        function slushat_set_profiley() { profili_baza.map().on((val, key) => { if(key && val) { globalnie_profili[key] = { ...globalnie_profili[key], ...val }; obnovit_kartochku_profilya(); } }); }
+
+        function postavit_layk(p_id) {
+            const klyuch = p_id + '_' + danya_usera.name;
+            layki_baza.get(klyuch).put(globalnie_layki[klyuch] === 'yes' ? 'no' : 'yes');
+        }
+
+        function poluchit_kolvo_laykov(p_id) { let s = 0; Object.keys(globalnie_layki).forEach(k => { if (k.startsWith(p_id + '_') && globalnie_layki[k] === 'yes') s++; }); return s; }
+        function ya_postavil_layk(p_id) { return globalnie_layki[p_id + '_' + danya_usera.name] === 'yes'; }
+        function poluchit_vse_layki_usera(username) { let s = 0; cherniy_banan.forEach(p => { if (p.author === username) s += poluchit_kolvo_laykov(p.id); }); return s; }
+
+        function smotret_profil(username) { tekuschiy_prosmotr_юзера = username; pereklyuchit_vkladku('profil'); }
+        function smotret_svoy_profil() { tekuschiy_prosmotr_юзера = danya_usera.name; obnovit_kartochku_profilya(); }
+
+        function sohranit_nick_messengera() {
+            const nick = document.getElementById('vvod_messenger_nick').value.trim().toLowerCase().replace(/\s+/g, '');
+            if(!nick) return alert('Укажите ник!');
+            profili_baza.get(danya_usera.name).get('msgNick').put(nick);
+            localStorage.setItem('messenger_auto_nick', nick);
+            alert('Связано!');
+        }
+
+        function izmenit_avatar(input) {
+            const fil = input.files[0]; if (!fil) return;
+            szhat_kartinku(fil, 150, (kod) => { profili_baza.get(danya_usera.name).get('avatar').put(kod); });
+        }
+
+        function rasschitat_vremya_saita(timestamp) {
+            const diff = Date.now() - timestamp;
+            const mins = Math.floor(diff / 60000);
+            if (mins < 60) return mins + " мин.";
+            const hours = Math.floor(mins / 60);
+            if (hours < 24) return hours + " ч.";
+            return Math.floor(hours / 24) + " дн.";
+        }
+
+        function obnovit_kartochku_profilya() {
+            if (!tekuschiy_prosmotr_юзера) return;
+            document.getElementById('anketa_name').innerText = tekuschiy_prosmotr_юзера;
+            document.getElementById('anketa_likes_count').innerText = poluchit_vse_layki_usera(tekuschiy_prosmotr_юзера);
+            
+            const p_data = globalnie_profili[tekuschiy_prosmotr_юзера];
+            
+            if (p_data && p_data.regTime) {
+                document.getElementById('anketa_reg_date').innerText = new Date(p_data.regTime).toLocaleDateString();
+                document.getElementById('anketa_site_age').innerText = rasschitat_vremya_saita(p_data.regTime);
+            } else {
+                document.getElementById('anketa_reg_date').innerText = "Недавно";
+                document.getElementById('anketa_site_age').innerText = "1 мин.";
+            }
+
+            document.getElementById('profil_avatar_container').innerHTML = (p_data && p_data.avatar) ? `<img src="${p_data.avatar}" class="ava_kartinka">` : '👤';
+            document.getElementById('anketa_messenger_nick').innerText = (p_data && p_data.msgNick) ? '@' + p_data.msgNick : 'не указан';
+
+            const флагЯ = tekuschiy_prosmotr_юзера === danya_usera.name;
+            document.getElementById('zagol_anketi').innerText = флагЯ ? 'Мой Профиль' : 'Профиль друга';
+            document.getElementById('blok_izmeneniya_messenger').className = флагЯ ? '' : 'skritiy_blok';
+            document.getElementById('blok_zagruzki_ava').className = флагЯ ? '' : 'skritiy_blok';
+            document.getElementById('blok_knopki_vernutsya').className = флагЯ ? 'skritiy_blok' : 'knopka_seraya';
+            if(флагЯ && p_data && p_data.msgNick) document.getElementById('vvod_messenger_nick').value = p_data.msgNick;
+            
+            risovat_lentu_profilya();
+        }
+
+        function risovat_lentu() {
+            const cnt = document.getElementById('lenta_postov'); cnt.innerHTML = '';
+            if(cherniy_banan.length === 0) { cnt.innerHTML = '<div style="color:#777;padding:5px;">Стена пуста.</div>'; return; }
+            cherniy_banan.forEach(p => cnt.appendChild(sozdat_html_posta(p)));
+        }
+
+        function risovat_lentu_profilya() {
+            const cnt = document.getElementById('lenta_postov_usera'); cnt.innerHTML = '';
+            const p_posts = cherniy_banan.filter(p => p.author === tekuschiy_prosmotr_юзера);
+            if(p_posts.length === 0) { cnt.innerHTML = '<div style="color:#777;padding:5px;">Нет записей.</div>'; return; }
+            p_posts.forEach(p => cnt.appendChild(sozdat_html_posta(p)));
+        }
+
+        function sozdat_html_posta(post) {
+            const el = document.createElement('div'); el.className = 'kartochка_posta';
+            let imgHtml = post.img ? `<img src="${post.img}" class="kartinka_v_poste">` : '';
+            let l_count = poluchit_kolvo_laykov(post.id);
+            let l_class = ya_postavil_layk(post.id) ? 'aktivniy_layk' : '';
+            
+            let knopkaУдаленияПоста = '';
+            if (post.author === danya_usera.name) {
+                knopkaУдаленияПоста = `<button class="knopka_del_posta" onclick="удалитьПост('${post.id}')">× Удалить пост</button>`;
+            }
+
+            const p_data = globalnie_profili[post.author];
+            let ava = (p_data && p_data.avatar) ? `<img src="${p_data.avatar}" class="mini_ava">` : `<div class="mini_ava" style="display:flex;align-items:center;justify-content:center;background:#e1e1e1;">👤</div>`;
+
+            el.innerHTML = `
+                ${ava}
+                <div class="pravaya_chast_posta">
+                    <div>
+                        <span>${post.mood || '☕'}</span>
+                        <a href="#" class="avtor_posta" onclick="smotret_profil('${ochistka_koda(post.author)}'); return false;">${ochistka_koda(post.author)}</a>
+                        <span class="vremya_posta">${post.time || ''}</span>
+                    </div>
+                    <div class="tekst_posta">${ochistka_koda(post.text)}</div>
+                    ${imgHtml}
+                    <div class="line_laykov">
+                        <div onclick="postavit_layk('${post.id}')" class="knopka_serdechko ${l_class}">♥ <span style="font-size:12px;color:#777;">${l_count}</span></div>
+                        ${knopkaУдаленияПоста}
+                    </div>
+                </div>
+            `;
+            return el;
+        }
+
+        function svyazat_knopki_vxoda() {
+            const st = document.getElementById('oshibka_vvoda');
+            document.getElementById('knopka_regi').onclick = () => {
+                const u = document.getElementById('burmalda').value.trim(), p = document.getElementById('osika_v_teset').value.trim();
+                if(!u || !p) return;
+                kents_v_seti.create(u, p, (ack) => {
+                    if (ack.err) st.innerText = ack.err;
+                    else { profili_baza.get(u).put({ regTime: Date.now() }); st.innerText = 'Готово! Нажмите Войти.'; }
+                });
+            };
+            document.getElementById('knopka_vxoda').onclick = () => {
+                const u = document.getElementById('burmalda').value.trim(), p = document.getElementById('osika_v_teset').value.trim();
+                if(!u || !p) return;
+                kents_v_seti.auth(u, p, (ack) => {
+                    if (ack.err) st.innerText = ack.err;
+                    else {
+                        danya_usera = { name: u }; localStorage.setItem('vofshiy_yuzer', JSON.stringify(danya_usera));
+                        tekuschiy_prosmotr_юзера = u; pereklyuchit_ekran('glavniy_ekran'); init_paneli();
+                    }
+                });
+            };
+        }
+
+        function szhat_kartinku(file, max_size, callback) {
+            const chitalka = new FileReader();
+            chitalka.onloadend = () => {
+                const canvas = document.createElement('canvas'); const ctx = canvas.getContext('2d'); const img = new Image();
+                img.onload = () => {
+                    let w = img.width, h = img.height;
+                    if (w > max_size || h > max_size) {
+                        if (w > h) { h = Math.round((h * max_size) / w); w = max_size; } else { w = Math.round((w * max_size) / h); h = max_size; }
+                    }
+                    canvas.width = w; canvas.height = h; ctx.drawImage(img, 0, 0, w, h);
+                    callback(canvas.toDataURL('image/jpeg', 0.5));
+                };
+                img.src = chitalka.result;
+            };
+            chitalka.readAsDataURL(file);
+        }
+        function ochistka_koda(str) { return str ? str.replace(/[&<>'"]/g, t => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;' }[t] || t)) : ''; }
+    </script>
+</body>
+</html>
