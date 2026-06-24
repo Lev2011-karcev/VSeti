@@ -3,17 +3,19 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>ВСети.ру —  p2p-версия</title>
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self' https://cdn.jsdelivr.net https://gun-manhattan.herokuapp.com https://gundb-relay.onrender.com; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline'; img-src 'self' data: https: http: blob:; connect-src 'self' https://gun-manhattan.herokuapp.com https://gundb-relay.onrender.com wss://gun-manhattan.herokuapp.com wss://gundb-relay.onrender.com; font-src 'self' data:;">
+    <title>ВСети.ру — p2p-версия</title>
     <script src="https://cdn.jsdelivr.net/npm/gun/gun.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/gun/sea.js"></script>
     <style>
         body { background-color: #f7f7f7; color: #1c1e21; font-family: Tahoma, Arial, sans-serif; font-size: 12px; margin: 0; padding: 0; }
         .verh_panel { background-color: #3b5998; border-bottom: 1px solid #29487d; color: #ffffff; padding: 12px 0; position: sticky; top: 0; z-index: 100; }
-        .shirina_polosa { max-width: 620px; margin: 0 auto; padding: 0 10px; display: flex; justify-content: space-between; align-items: center; }
-        .logotip_seti { font-size: 20px; font-weight: bold; letter-spacing: -1px; }
-        .osnovnoy_bazar { max-width: 620px; margin: 10px auto; padding: 0 8px; box-sizing: border-box; }
-        .nav_vkladki { display: flex; border-bottom: 1px solid #bdc7d8; margin-bottom: 12px; background: #eceff5; }
-        .vkladka_knopka { padding: 10px 14px; color: #3b5998; text-decoration: none; font-weight: bold; cursor: pointer; flex: 1; text-align: center; font-size: 12px; }
+        .shirina_polosa { max-width: 900px; margin: 0 auto; padding: 0 10px; display: flex; justify-content: space-between; align-items: center; }
+        .logotip_seti { font-size: 20px; font-weight: bold; letter-spacing: -1px; display: flex; align-items: center; gap: 15px;}
+        .stats_badge { font-size: 11px; background: rgba(255,255,255,0.2); padding: 3px 8px; border-radius: 10px; font-weight: normal; }
+        .osnovnoy_bazar { max-width: 900px; margin: 10px auto; padding: 0 8px; box-sizing: border-box; }
+        .nav_vkladki { display: flex; border-bottom: 1px solid #bdc7d8; margin-bottom: 12px; background: #eceff5; flex-wrap: wrap; }
+        .vkladka_knopka { padding: 10px 14px; color: #3b5998; text-decoration: none; font-weight: bold; cursor: pointer; flex: 1; text-align: center; font-size: 12px; min-width: 80px; }
         .vkladka_knopka.aktivnaya_vkladka { background-color: #ffffff; border: 1px solid #bdc7d8; border-bottom: 1px solid #ffffff; color: #000000; }
         .belaya_korobka { background-color: #ffffff; border: 1px solid #bdc7d8; padding: 10px; margin-bottom: 12px; }
         .zagolovok_korobki { background-color: #eceff5; border: 1px solid #d8dfea; color: #3b5998; font-weight: bold; padding: 6px; margin-bottom: 10px; font-size: 12px; }
@@ -24,14 +26,17 @@
         .kartochка_posta { border-bottom: 1px dotted #bdc7d8; padding: 12px 0; display: flex; gap: 10px; position: relative; }
         .mini_ava { width: 36px; height: 36px; border-radius: 50%; object-fit: cover; background: #e1e1e1; flex-shrink: 0; }
         .pravaya_chast_posta { flex: 1; min-width: 0; }
-        .avtor_posta { color: #3b5998; font-weight: bold; text-decoration: none; font-size: 13px; }
+        .avtor_posta { color: #3b5998; font-weight: bold; text-decoration: none; font-size: 13px; cursor: pointer; }
         .vremya_posta { color: #777; font-size: 10px; margin-left: 5px; }
-        .tekst_posta { font-size: 13px; margin-top: 6px; line-height: 15px; word-wrap: break-word; }
-        .kartinka_v_poste { margin-top: 8px; border: 1px solid #d8dfea; padding: 2px; max-width: 100%; max-height: 280px; display: block; }
-        .line_laykov { margin-top: 10px; display: flex; align-items: center; justify-content: space-between; }
+        .tekst_posta { font-size: 13px; margin-top: 6px; line-height: 15px; word-wrap: break-word; white-space: pre-wrap; }
+        .mod_metka { font-size: 10px; color: #cc0000; font-style: italic; display: block; margin-top: 4px; }
+        .kartinka_v_poste { margin-top: 8px; border: 1px solid #d8dfea; padding: 2px; max-width: 100%; max-height: 280px; display: block; cursor: pointer; }
+        .line_laykov { margin-top: 10px; display: flex; align-items: center; justify-content: flex-start; gap: 15px; flex-wrap: wrap; }
         .knopka_serdechko { font-size: 16px; color: #bdc7d8; cursor: pointer; user-select: none; }
         .knopka_serdechko.aktivniy_layk { color: #e0245e; }
-        .knopka_del_posta { color: #cc0000; background: none; border: none; font-size: 11px; cursor: pointer; padding: 0; }
+        .knopka_del_posta, .knopka_mod_posta { background: none; border: none; font-size: 11px; cursor: pointer; padding: 0; }
+        .knopka_del_posta { color: #777; }
+        .knopka_mod_posta { color: #cc0000; font-weight: bold; }
         
         .blok_profilya_verh { display: flex; flex-direction: row; gap: 12px; }
         .ava_ramka { width: 90px; height: 90px; border: 1px solid #bdc7d8; display: flex; align-items: center; justify-content: center; overflow: hidden; flex-shrink: 0; }
@@ -39,48 +44,128 @@
         .anketa_info { font-size: 12px; line-height: 18px; flex: 1; }
         .skritiy_blok { display: none !important; }
 
-        /* Тачи и мобилки */
-        @media (max-width: 480px) {
+        /* === КАПЧА С КАРТИНКАМИ === */
+        .captcha_box { 
+            margin: 12px 0; 
+            padding: 12px; 
+            background: linear-gradient(135deg, #f0f4f8 0%, #e8eef5 100%); 
+            border: 2px solid #4285f4; 
+            border-radius: 8px; 
+            box-shadow: 0 2px 8px rgba(66, 133, 244, 0.2);
+        }
+        .captcha_header { display: flex; align-items: center; gap: 8px; margin-bottom: 10px; font-size: 13px; font-weight: bold; color: #202124; }
+        .captcha_header::before { content: "🛡️"; font-size: 18px; }
+        .captcha_instruction { background: #fff; padding: 8px 12px; border-radius: 6px; margin-bottom: 10px; font-size: 12px; color: #202124; border-left: 3px solid #4285f4; }
+        .captcha_grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; margin-bottom: 10px; background: #fff; padding: 8px; border-radius: 6px; border: 1px solid #dadce0; }
+        .captcha_cell { aspect-ratio: 1; background: #f8f9fa; border: 2px solid #dadce0; border-radius: 6px; display: flex; align-items: center; justify-content: center; font-size: 42px; cursor: pointer; transition: all 0.2s ease; user-select: none; }
+        .captcha_cell:hover { background: #e8f0fe; border-color: #4285f4; transform: scale(1.05); }
+        .captcha_cell.selected { background: #d2e3fc; border-color: #4285f4; box-shadow: 0 0 0 3px rgba(66, 133, 244, 0.3); transform: scale(0.95); }
+        .captcha_cell.correct { background: #ceead6; border-color: #34a853; animation: pulse 0.5s ease; }
+        .captcha_cell.wrong { background: #fce8e6; border-color: #ea4335; animation: shake 0.5s ease; }
+        @keyframes pulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.1); } }
+        @keyframes shake { 0%, 100% { transform: translateX(0); } 25% { transform: translateX(-5px); } 75% { transform: translateX(5px); } }
+        .captcha_actions { display: flex; gap: 8px; align-items: center; }
+        .captcha_btn { background: #4285f4; color: #fff; border: none; padding: 8px 16px; border-radius: 4px; font-size: 12px; font-weight: bold; cursor: pointer; transition: background 0.2s; }
+        .captcha_btn:hover { background: #3367d6; }
+        .captcha_btn:disabled { background: #dadce0; cursor: not-allowed; }
+        .captcha_refresh { background: none; border: none; color: #4285f4; font-size: 11px; cursor: pointer; text-decoration: underline; padding: 4px 8px; }
+        .captcha_refresh:hover { color: #3367d6; }
+        .captcha_status { margin-top: 8px; padding: 6px 10px; border-radius: 4px; font-size: 11px; font-weight: bold; text-align: center; }
+        .captcha_status.success { background: #ceead6; color: #137333; }
+        .captcha_status.error { background: #fce8e6; color: #c5221f; }
+
+        /* === МЕССЕНДЖЕР === */
+        .msg_container { display: flex; gap: 12px; }
+        .msg_sidebar { flex: 0 0 240px; display: flex; flex-direction: column; gap: 8px; }
+        .msg_chat_area { flex: 1; display: flex; flex-direction: column; min-width: 0; }
+        .msg_spisok { max-height: 450px; overflow-y: auto; background: #fff; border: 1px solid #bdc7d8; padding: 4px; }
+        .msg_dialog_el { padding: 8px; border-bottom: 1px dotted #d8dfea; cursor: pointer; display: flex; justify-content: space-between; align-items: center; }
+        .msg_dialog_el:hover { background: #eceff5; }
+        .msg_dialog_el.aktivniy { background: #d8dfea; }
+        .msg_imya { color: #3b5998; font-weight: bold; }
+        .msg_vremya { font-size: 10px; color: #888; }
+        .msg_net { color: #777; padding: 10px; text-align: center; font-size: 12px; }
+        .msg_okno { flex: 1; background: #fff; border: 1px solid #bdc7d8; height: 380px; overflow-y: auto; padding: 10px; box-sizing: border-box; display: flex; flex-direction: column; gap: 6px; }
+        .msg_balun { max-width: 75%; padding: 6px 10px; border-radius: 10px; word-wrap: break-word; }
+        .msg_balun.moi { background: #d8dfea; align-self: flex-end; border-bottom-right-radius: 2px; }
+        .msg_balun.chuzhoi { background: #eceff5; align-self: flex-start; border-bottom-left-radius: 2px; }
+        .msg_balun.udaleno { background: #f5f5f5; color: #999; font-style: italic; align-self: center; max-width: 60%; text-align: center; font-size: 11px; }
+        .msg_vremya_soob { font-size: 10px; color: #777; display: block; margin-top: 2px; }
+        .msg_metka_red { font-size: 10px; color: #888; font-style: italic; }
+        .msg_knopka_act { font-size: 10px; cursor: pointer; background: none; border: none; padding: 0; margin-left: 6px; }
+        .msg_knopka_act.redakt { color: #3b5998; }
+        .msg_knopka_act.udalit { color: #cc0000; }
+        .msg_panel_vvoda { display: flex; gap: 6px; margin-top: 8px; align-items: flex-end; }
+        .msg_panel_vvoda textarea { flex: 1; resize: vertical; min-height: 36px; max-height: 100px; }
+        .msg_zagolovok { background: #eceff5; border: 1px solid #d8dfea; color: #3b5998; font-weight: bold; padding: 8px; font-size: 13px; display: flex; justify-content: space-between; align-items: center; }
+        .msg_panel_dop { display: flex; gap: 8px; align-items: center; margin-top: 4px; font-size: 11px; color: #555; flex-wrap: wrap; }
+        .msg_label_file { cursor: pointer; padding: 3px 8px; background: #eceff5; border: 1px solid #bdc7d8; border-radius: 3px; display: inline-block; }
+        .msg_label_file:hover { background: #d8dfea; }
+        .msg_kartinka_balun { max-width: 100%; max-height: 220px; border: 1px solid #bdc7d8; padding: 2px; margin-top: 4px; display: block; cursor: pointer; }
+
+        .modal_overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.8); z-index: 1000; display: flex; align-items: center; justify-content: center; cursor: pointer; }
+        .modal_overlay img { max-width: 95%; max-height: 95%; border: 3px solid #fff; }
+
+        @media (max-width: 680px) {
+            .msg_container { flex-direction: column; }
+            .msg_sidebar { flex: 1 1 auto; width: 100%; }
+            .msg_chat_area { width: 100%; }
+            .msg_sidebar.skrityi { display: none; }
+            .msg_chat_area.skrityi { display: none; }
             .blok_profilya_verh { flex-direction: column; align-items: center; text-align: center; }
             .knopka_sinyaya, .knopka_seraya { width: 100%; text-align: center; padding: 10px; margin-bottom: 4px; }
+            .captcha_cell { font-size: 32px; }
         }
     </style>
 </head>
 <body>
 
-    <!-- Экран Входа -->
     <div id="ekran_avtorizacii" class="belaya_korobka" style="max-width: 360px; margin: 40px auto; padding: 15px;">
         <div class="zagolovok_korobki">Вход ВСети</div>
-        <input id="burmalda" type="text" class="tekstovoe_pole" placeholder="Логин (eng)">
-        <input id="osika_v_teset" type="password" class="tekstovoe_pole" placeholder="Пароль">
-        <button id="knopka_vxoda" class="knopka_sinyaya" style="margin-bottom:6px;">Войти</button>
-        <button id="knopka_regi" class="knopka_seraya">Регистрация</button>
-        <div id="oshibka_vvoda" style="color: #dd0000; margin-top: 10px; font-weight: bold; text-align:center;"></div>
+        <input id="burmalda" type="text" class="tekstovoe_pole" placeholder="Логин (eng)" maxlength="30" autocomplete="username">
+        <input id="osika_v_teset" type="password" class="tekstovoe_pole" placeholder="Пароль" maxlength="60" autocomplete="current-password">
+        <button id="knopka_vxoda" class="knopka_sinyaya" style="margin-bottom:6px; width:100%;">Войти</button>
+        <button id="knopka_regi" class="knopka_seraya" style="width:100%;">Регистрация</button>
+        
+        <div id="captcha_block" class="captcha_box skritiy_blok">
+            <div class="captcha_header">Подтвердите, что вы не робот</div>
+            <div class="captcha_instruction" id="captcha_instruction">Выберите все изображения с...</div>
+            <div class="captcha_grid" id="captcha_grid"></div>
+            <div class="captcha_actions">
+                <button type="button" class="captcha_btn" id="captcha_verify">Подтвердить</button>
+                <button type="button" class="captcha_refresh" id="captcha_refresh">🔄 Новая задача</button>
+            </div>
+            <div id="captcha_status" class="captcha_status skritiy_blok"></div>
+        </div>
+        
+        <div id="oshibka_vvoda" style="color: #dd0000; margin-top: 10px; font-weight: bold; text-align:center; min-height: 16px;"></div>
     </div>
 
-    <!-- Главный Экран -->
     <div id="glavniy_ekran" class="skritiy_blok">
         <div class="verh_panel">
             <div class="shirina_polosa">
-                <div class="logotip_seti">ВСети</div>
+                <div class="logotip_seti">
+                    ВСети
+                    <span class="stats_badge" id="stats_users_count">Людей в сети: 0</span>
+                </div>
                 <div style="font-size:11px;"><a id="knopka_vixoda" href="#" style="color: white; font-weight: bold; text-decoration:none;">Выход</a></div>
             </div>
         </div>
 
         <div class="osnovnoy_bazar">
             <div class="nav_vkladki">
-                <div id="vkladka_lenta_knopka" class="vkladka_knopka aktivnaya_vkladka" onclick="pereklyuchit_vkladku('lenta')">Лента</div>
-                <div id="vkladka_profil_knopka" class="vkladka_knopka" onclick="pereklyuchit_vkladku('profil')">Профиль</div>
+                <div id="vkladka_lenta_knopka" class="vkladka_knopka aktivnaya_vkladka" data-tab="lenta">Лента</div>
+                <div id="vkladka_profil_knopka" class="vkladka_knopka" data-tab="profil">Профиль</div>
+                <div id="vkladka_msg_knopka" class="vkladka_knopka" data-tab="msg">💬 Мессенджер</div>
             </div>
 
-            <!-- Вкладка Ленты -->
             <div id="okno_lenta">
                 <div class="belaya_korobka">
                     <select id="vibor_statusa" class="tekstovoe_pole" style="width: auto;">
                         <option value="📱">📱 С телефона</option>
                         <option value="🔥">🔥 Активен</option>
                         <option value="☕" selected>☕ Отдыхаю</option>
-                        <option value="🎋">🎋 Бамбуковый граф </option>
+                        <option value="🎋">🎋 Бамбуковый граф</option>
                         <option value="🎧">🎧 Слушаю музыку</option>
                         <option value="😓">😓 Занят</option>
                     </select>
@@ -94,11 +179,9 @@
                 </div>
             </div>
 
-            <!-- Вкладка Профиля -->
             <div id="okno_profil" class="skritiy_blok">
                 <div class="belaya_korobka">
                     <div class="zagolovok_korobki" id="zagol_anketi">Анкета пользователя</div>
-                    
                     <div class="blok_profilya_verh">
                         <div class="ava_ramka" id="profil_avatar_container">
                             <span class="ava_zaglushka">👤</span>
@@ -111,76 +194,326 @@
                             <strong>На сайте уже:</strong> <span id="anketa_site_age">-</span>
                         </div>
                     </div>
-
-                    <!-- Поле настройки никнейма мессенджера (только для себя) -->
                     <div id="blok_izmeneniya_messenger" style="margin-top: 12px; border-top: 1px dotted #bdc7d8; padding-top: 8px;">
                         <label style="font-size:10px; color:#555; display:block; margin-bottom:3px;">Ваш ник для ВСети.мессенджер (без пробелов):</label>
                         <div style="display:flex; gap:5px;">
-                            <input type="text" id="vvod_messenger_nick" class="tekstovoe_pole" style="margin:0;" placeholder="Например: danya777">
-                            <button class="knopka_sinyaya" onclick="sohranit_nick_messengera()">Сохранить ник</button>
+                            <input type="text" id="vvod_messenger_nick" class="tekstovoe_pole" style="margin:0;" placeholder="Например: danya777" maxlength="20">
+                            <button class="knopka_sinyaya" data-action="save-nick">Сохранить ник</button>
                         </div>
                     </div>
-
                     <div id="blok_zagruzki_ava" style="margin-top: 10px;">
                         <label style="font-size:10px; color:#555; display:block; margin-bottom:3px;">Сменить фото профиля:</label>
-                        <input type="file" id="vibor_ava" accept="image/*" style="font-size:10px;" onchange="izmenit_avatar(this)">
+                        <input type="file" id="vibor_ava" accept="image/*" style="font-size:10px;">
                     </div>
-
                     <div id="blok_knopki_vernutsya" class="skritiy_blok" style="margin-top:15px;">
-                        <button class="knopka_seraya" style="width:100%;" onclick="smotret_svoy_profil()">Вернуться к моему профилю</button>
+                        <button class="knopka_seraya" style="width:100%;" data-action="back-my-profile">Вернуться к моему профилю</button>
                     </div>
                 </div>
-
                 <div class="belaya_korobka">
                     <div class="zagolovok_korobki" id="zagolovok_sten_usera">Стена пользователя</div>
                     <div id="lenta_postov_usera"></div>
                 </div>
             </div>
+
+            <div id="okno_msg" class="skritiy_blok">
+                <div class="msg_container">
+                    <div class="msg_sidebar" id="msg_sidebar">
+                        <div class="belaya_korobka" style="padding:8px;">
+                            <div class="zagolovok_korobki" style="margin-bottom:6px;">Новый диалог</div>
+                            <input id="msg_vvod_druga" type="text" class="tekstovoe_pole" placeholder="Ник друга" style="margin-bottom:6px;" maxlength="30">
+                            <button id="msg_nachat" class="knopka_sinyaya" style="width:100%;">ОК</button>
+                        </div>
+                        <div class="belaya_korobka" style="padding:6px;">
+                            <div class="zagolovok_korobki" style="margin-bottom:4px;">Мои диалоги:</div>
+                            <div id="msg_spisok" class="msg_spisok">
+                                <div class="msg_net">Нет диалогов</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="msg_chat_area skritiy" id="msg_chat_area">
+                        <div class="msg_zagolovok">
+                            <div>Диалог с: <span id="msg_sobesednik">-</span></div>
+                            <button id="msg_k_chatam" class="knopka_seraya" style="padding:4px 10px; font-size:11px;">↩ К чатам</button>
+                        </div>
+                        <div id="msg_okno" class="msg_okno"></div>
+                        <div class="msg_panel_vvoda">
+                            <textarea id="msg_vvod" class="tekstovoe_pole" rows="2" placeholder="Сообщение..." maxlength="1000"></textarea>
+                            <button id="msg_poslat" class="knopka_sinyaya">Послать</button>
+                            <button id="msg_otmena" class="knopka_seraya skritiy_blok">Отмена</button>
+                        </div>
+                        <div class="msg_panel_dop">
+                            <label class="msg_label_file">📷 Картинка
+                                <input type="file" id="msg_file" accept="image/*" class="skritiy_blok">
+                            </label>
+                            <span id="msg_imya_fayla" style="color:#3b5998;"></span>
+                        </div>
+                        <div id="msg_status_redakt" class="skritiy_blok" style="font-size:11px; color:#777; margin-top:4px;">
+                            ✏️ Редактирование сообщения...
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 
+    <div id="modal_kartinki" class="modal_overlay skritiy_blok">
+        <img id="modal_img" src="" alt="">
+    </div>
+
     <script>
+        'use strict';
+
+        // ============================================================
+        // === НАСТРОЙКИ МОДЕРАЦИИ ===
+        // ============================================================
+        // Вставь сюда свой публичный ключ модератора! (Найдешь в F12 после входа)
+        const MODERATOR_PUBS = [
+            'Bgfj9NOBDr4DTmB65cS2kcuOCkcSJ8ZBgCVQrfj7k18.-lJ803ojhgwNWF4KNSsmioM6RBWq0J79Sr9W3q3okSQ',
+            'КЛЮЧ_МОДЕРАТОРА_2'
+        ];
+
+        // ============================================================
+        // === УТИЛИТЫ И БЕЗОПАСНОСТЬ ===
+        // ============================================================
+        function escapeHtml(str) {
+            if (str === null || str === undefined) return '';
+            return String(str).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#39;').replace(/`/g, '&#96;');
+        }
+        function isValidId(id) { return typeof id === 'string' && /^[a-zA-Z0-9_\-]+$/.test(id); }
+        function isSafeImageUrl(url) { return typeof url === 'string' && /^(data:image\/(png|jpeg|jpg|gif|webp);base64,|https?:\/\/)/i.test(url.trim()); }
+        function isValidNick(nick) { return typeof nick === 'string' && /^[a-zA-Z0-9_\-]{2,30}$/.test(nick); }
+        function sanitizeNick(nick) { return String(nick || '').replace(/[^a-zA-Z0-9_\-]/g, '').slice(0, 30); }
+
+        // ============================================================
+        // === КАПЧА С КАРТИНКАМИ (ИЗ ОРИГИНАЛА) ===
+        // ============================================================
+        const captchaCategories = {
+            'мотоциклами': ['🏍️', '🛵'], 'автомобилями': ['🚗', '🚙', '🚕'], 'автобусами': ['🚌', '🚐'],
+            'грузовиками': ['🚚', '🚛', '🚜'], 'велосипедами': ['🚲', '🚴'], 'самолётами': ['✈️', '🛩️'],
+            'кораблями': ['🚢', '⛵', '🛥️'], 'поездами': ['🚂', '🚆', '🚇'], 'светофорами': ['🚦', '🚥'],
+            'домами': ['🏠', '🏡', '🏘️'], 'деревьями': ['🌳', '🌲', '🌴'], 'цветами': ['🌸', '🌺', '🌻', '🌹'],
+            'собаками': ['🐶', '🐕', '🦮'], 'кошками': ['🐱', '🐈', '😺'], 'птицами': ['🐦', '🦅', '🦆', '🦉'],
+            'рыбами': ['🐟', '🐠', '🐡'], 'пиццей': ['🍕'], 'бургерами': ['🍔', '🍟'],
+            'фруктами': ['🍎', '🍌', '🍇', '🍓'], 'гитарами': ['🎸', '🎵'], 'мячами': ['⚽', '🏀', '🏈', '⚾'],
+            'книгами': ['📚', '📖'], 'компьютерами': ['💻', '🖥️'], 'телефонами': ['📱', '☎️']
+        };
+
+        let captchaCorrectIndices = [];
+        let captchaSelectedIndices = new Set();
+        let captchaSolved = false;
+
+        function generateCaptcha() {
+            captchaSolved = false;
+            captchaSelectedIndices.clear();
+            const categories = Object.keys(captchaCategories);
+            const targetCategory = categories[Math.floor(Math.random() * categories.length)];
+            const targetEmojis = captchaCategories[targetCategory];
+            const otherCategories = categories.filter(c => c !== targetCategory);
+            const correctCount = 2 + Math.floor(Math.random() * 3);
+            const grid = [];
+            const correctPositions = new Set();
+            
+            while (correctPositions.size < correctCount) correctPositions.add(Math.floor(Math.random() * 9));
+            
+            for (let i = 0; i < 9; i++) {
+                if (correctPositions.has(i)) {
+                    grid.push({ emoji: targetEmojis[Math.floor(Math.random() * targetEmojis.length)], isCorrect: true });
+                } else {
+                    const otherCat = otherCategories[Math.floor(Math.random() * otherCategories.length)];
+                    const otherEmojis = captchaCategories[otherCat];
+                    grid.push({ emoji: otherEmojis[Math.floor(Math.random() * otherEmojis.length)], isCorrect: false });
+                }
+            }
+            captchaCorrectIndices = Array.from(correctPositions);
+            document.getElementById('captcha_instruction').textContent = `Выберите все изображения с ${targetCategory}`;
+            const gridEl = document.getElementById('captcha_grid');
+            gridEl.innerHTML = '';
+            grid.forEach((item, index) => {
+                const cell = document.createElement('div');
+                cell.className = 'captcha_cell'; cell.textContent = item.emoji; cell.dataset.index = index;
+                cell.addEventListener('click', () => toggleCaptchaCell(cell, index));
+                gridEl.appendChild(cell);
+            });
+            document.getElementById('captcha_status').classList.add('skritiy_blok');
+        }
+
+        function toggleCaptchaCell(cell, index) {
+            if (captchaSolved) return;
+            if (captchaSelectedIndices.has(index)) { captchaSelectedIndices.delete(index); cell.classList.remove('selected'); } 
+            else { captchaSelectedIndices.add(index); cell.classList.add('selected'); }
+        }
+
+        function verifyCaptcha() {
+            if (captchaSolved) return true;
+            const selected = Array.from(captchaSelectedIndices).sort();
+            const correct = [...captchaCorrectIndices].sort();
+            const isCorrect = selected.length === correct.length && selected.every((val, i) => val === correct[i]);
+            const statusEl = document.getElementById('captcha_status');
+            statusEl.classList.remove('skritiy_blok');
+            
+            if (isCorrect) {
+                captchaSolved = true;
+                statusEl.className = 'captcha_status success'; statusEl.textContent = '✓ Верно! Вы не робот.';
+                document.querySelectorAll('.captcha_cell').forEach((cell, i) => { if (captchaCorrectIndices.includes(i)) cell.classList.add('correct'); });
+                return true;
+            } else {
+                statusEl.className = 'captcha_status error'; statusEl.textContent = '✗ Неверно. Попробуйте ещё раз.';
+                document.querySelectorAll('.captcha_cell').forEach((cell, i) => {
+                    if (captchaCorrectIndices.includes(i) && !captchaSelectedIndices.has(i)) cell.classList.add('wrong');
+                    else if (!captchaCorrectIndices.includes(i) && captchaSelectedIndices.has(i)) cell.classList.add('wrong');
+                });
+                setTimeout(() => generateCaptcha(), 1500);
+                return false;
+            }
+        }
+
+        // ============================================================
+        // === ИНИЦИАЛИЗАЦИЯ GUN ===
+        // ============================================================
         const dmitriy_gundon = Gun(['https://gun-manhattan.herokuapp.com/gun', 'https://gundb-relay.onrender.com/gun']);
         const kents_v_seti = dmitriy_gundon.user().recall({ sessionStorage: true });
         const ambukoviy_graf = dmitriy_gundon.get('moodin_p2p_fbook_v10');
         const layki_baza = dmitriy_gundon.get('moodin_p2p_fbook_likes_v10');
         const profili_baza = dmitriy_gundon.get('moodin_p2p_fbook_profiles_v10');
+        const msg_chats_db = dmitriy_gundon.get('vseti_messenger_chats_v3');
+        const msg_messages_db = dmitriy_gundon.get('vseti_messenger_messages_v3');
 
-        let danya_usera = JSON.parse(localStorage.getItem('vofshiy_yuzer')) || null;
-        let cherniy_banan = JSON.parse(localStorage.getItem('kash_postov')) || [];
+        let danya_usera = null;
+        try {
+            danya_usera = JSON.parse(localStorage.getItem('vofshiy_yuzer')) || null;
+            if (danya_usera && !isValidNick(danya_usera.name)) { danya_usera = null; localStorage.removeItem('vofshiy_yuzer'); }
+        } catch(e) { danya_usera = null; localStorage.removeItem('vofshiy_yuzer'); }
+        
+        let cherniy_banan = [];
         let globalnie_layki = {}, globalnie_profili = {}, tekuschiy_prosmotr_юзера = null;
+        let muted_users = {}; 
+        let edited_posts = {};
 
+        // Переменные мессенджера
+        let msg_current_friend = null, msg_editing_id = null, msg_dialogs = {}, msg_cache = {}, msg_pending_image = null;
+
+        // ============================================================
+        // === ОБРАБОТЧИКИ СОБЫТИЙ ===
+        // ============================================================
         document.addEventListener('DOMContentLoaded', () => {
             proverka_kenta();
-            document.getElementById('otpravit_v_lentu').onclick = () => {
+            
+            // Вход и Регистрация
+            document.getElementById('knopka_vxoda').addEventListener('click', () => attemptLogin(false));
+            document.getElementById('knopka_regi').addEventListener('click', () => {
+                document.getElementById('captcha_block').classList.remove('skritiy_blok');
+                generateCaptcha();
+                document.getElementById('oshibka_vvoda').innerText = '';
+            });
+            document.getElementById('captcha_verify').addEventListener('click', () => attemptLogin(true));
+            document.getElementById('captcha_refresh').addEventListener('click', () => generateCaptcha());
+            
+            document.getElementById('knopka_vixoda').addEventListener('click', (e) => { 
+                e.preventDefault(); kents_v_seti.leave(); localStorage.removeItem('vofshiy_yuzer'); location.reload(); 
+            });
+            
+            // Пост
+            document.getElementById('otpravit_v_lentu').addEventListener('click', () => {
+                if (muted_users[danya_usera.name] && muted_users[danya_usera.name] > Date.now()) {
+                    const ostalos = Math.ceil((muted_users[danya_usera.name] - Date.now()) / 60000);
+                    return alert(`Вы в муте! Осталось минут: ${ostalos}`);
+                }
                 const t = document.getElementById('tekst_novogo_posta').value.trim();
                 const fil = document.getElementById('gus_hrustalniy').files[0];
                 if (!t && !fil) return;
-                if (fil) { szhat_kartinku(fil, 450, (kod) => { sozdat_post_v_baze(t, kod); }); } 
-                else { sozdat_post_v_baze(t, ''); }
-            };
-            document.getElementById('knopka_vixoda').onclick = (e) => { e.preventDefault(); kents_v_seti.leave(); localStorage.removeItem('vofshiy_yuzer'); location.reload(); };
+                if (fil) szhat_kartinku(fil, 450, (kod) => sozdat_post_v_baze(t, kod)); else sozdat_post_v_baze(t, '');
+            });
+            
+            // Вкладки
+            document.querySelectorAll('[data-tab]').forEach(el => el.addEventListener('click', () => pereklyuchit_vkladku(el.dataset.tab)));
+            
+            // Делегирование
+            document.addEventListener('click', (e) => {
+                const btn = e.target.closest('[data-action]');
+                if (!btn) return;
+                const action = btn.dataset.action;
+                
+                if (action === 'save-nick') sohranit_nick_messengera();
+                else if (action === 'back-my-profile') smotret_svoy_profil();
+                else if (action === 'view-profile') smotret_profil(btn.dataset.nick);
+                else if (action === 'like') postavit_layk(btn.dataset.id);
+                else if (action === 'delete-post') удалитьПост(btn.dataset.id);
+                else if (action === 'mod-mute') модерация_мут(btn.dataset.nick);
+                else if (action === 'mod-edit') модерация_редактировать(btn.dataset.id);
+                // Мессенджер делегирование
+                else if (action === 'open-dialog') msg_otkrit_dialog(btn.dataset.nick);
+                else if (action === 'edit-msg') msg_redaktirovat(btn.dataset.id);
+                else if (action === 'delete-msg') msg_udalit(btn.dataset.id);
+            });
+            
+            // Мессенджер
+            document.getElementById('msg_nachat').addEventListener('click', msg_nachat_dialog);
+            document.getElementById('msg_poslat').addEventListener('click', msg_otpravit);
+            document.getElementById('msg_otmena').addEventListener('click', msg_otmena_redakt);
+            document.getElementById('msg_k_chatam').addEventListener('click', msg_k_chatam);
+            
+            document.getElementById('msg_file').addEventListener('change', (e) => {
+                const file = e.target.files[0];
+                if (!file || !file.type.startsWith('image/')) return alert('Только картинки!');
+                szhat_kartinku(file, 600, (data) => {
+                    msg_pending_image = data; document.getElementById('msg_imya_fayla').innerText = '📷 ' + escapeHtml(file.name);
+                });
+            });
+            
+            document.getElementById('vibor_ava').addEventListener('change', (e) => {
+                const file = e.target.files[0];
+                if (file && file.type.startsWith('image/')) izmenit_avatar(file);
+            });
+            
+            document.getElementById('msg_vvod').addEventListener('keydown', (e) => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); msg_otpravit(); } });
+            document.getElementById('msg_vvod_druga').addEventListener('keydown', (e) => { if (e.key === 'Enter') { e.preventDefault(); msg_nachat_dialog(); } });
+            document.getElementById('modal_kartinki').addEventListener('click', zakrit_modal);
         });
 
-        function sozdat_post_v_baze(text, imgData) {
-            const p_id = 'post_' + Date.now() + '_' + Math.random().toString(36).substr(2, 4);
-            ambukoviy_graf.get(p_id).put({
-                id: p_id, author: danya_usera.name, text: text, img: imgData, mood: document.getElementById('vibor_statusa').value,
-                time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }), timestamp: Date.now(), deleted: false
-            });
-            document.getElementById('tekst_novogo_posta').value = '';
-            document.getElementById('gus_hrustalniy').value = '';
-        }
-
-        function удалитьПост(p_id) {
-            if(confirm('Удалить эту публикацию со стены навсегда?')) {
-                ambukoviy_graf.get(p_id).get('deleted').put(true);
+        // ============================================================
+        // === ЛОГИКА АВТОРИЗАЦИИ ===
+        // ============================================================
+        function attemptLogin(isRegistration) {
+            const st = document.getElementById('oshibka_vvoda');
+            const u = document.getElementById('burmalda').value.trim();
+            const p = document.getElementById('osika_v_teset').value.trim();
+            
+            if (!isValidNick(u)) return st.innerText = 'Логин: 2-30 символов, только латиница, цифры, _ и -';
+            if (!p || p.length < 3) return st.innerText = 'Пароль должен быть минимум 3 символа';
+            
+            if (isRegistration) {
+                if (!verifyCaptcha()) return;
+                st.innerText = '✓ Создаём аккаунт...';
+                kents_v_seti.create(u, p, (ack) => {
+                    if (ack.err) { st.innerText = 'Ошибка: ' + escapeHtml(ack.err); generateCaptcha(); } 
+                    else {
+                        profili_baza.get(u).put({ regTime: Date.now() });
+                        st.innerText = '✓ Готово! Теперь нажмите "Войти".';
+                        document.getElementById('captcha_block').classList.add('skritiy_blok');
+                    }
+                });
+            } else {
+                kents_v_seti.auth(u, p, (ack) => {
+                    if (ack.err) st.innerText = 'Ошибка входа: ' + escapeHtml(ack.err);
+                    else {
+                        danya_usera = { name: u };
+                        localStorage.setItem('vofshiy_yuzer', JSON.stringify(danya_usera));
+                        proverka_kenta();
+                    }
+                });
             }
         }
 
+        // ============================================================
+        // === СОЦСЕТЬ И МОДЕРАЦИЯ ===
+        // ============================================================
         function proverka_kenta() {
-            if (danya_usera) { tekuschiy_prosmotr_юзера = danya_usera.name; pereklyuchit_ekran('glavniy_ekran'); init_paneli(); } 
-            else { pereklyuchit_ekran('ekran_avtorizacii'); svyazat_knopki_vxoda(); }
+            if (danya_usera) { 
+                tekuschiy_prosmotr_юзера = danya_usera.name; pereklyuchit_ekran('glavniy_ekran'); init_paneli(); 
+                setTimeout(() => { if(kents_v_seti.is) console.log("%cТвой публичный ключ модератора (pub):", "color: red; font-size: 20px;", kents_v_seti.is.pub); }, 1000);
+            } 
+            else pereklyuchit_ekran('ekran_avtorizacii');
         }
 
         function pereklyuchit_ekran(id) {
@@ -191,163 +524,154 @@
         function pereklyuchit_vkladku(imya) {
             document.getElementById('okno_lenta').className = imya === 'lenta' ? '' : 'skritiy_blok';
             document.getElementById('okno_profil').className = imya === 'profil' ? '' : 'skritiy_blok';
-            document.getElementById('vkladka_lenta_knopka').className = 'vkladka_knopka' + (imya === 'lenta' ? ' aktivnaya_vkladка' : '');
-            document.getElementById('vkladka_profil_knopka').className = 'vkladka_knopka' + (imya === 'profil' ? ' aktivnaya_vkladка' : '');
+            document.getElementById('okno_msg').className = imya === 'msg' ? '' : 'skritiy_blok';
+            
+            document.getElementById('vkladka_lenta_knopka').className = 'vkladka_knopka' + (imya === 'lenta' ? ' aktivnaya_vkladka' : '');
+            document.getElementById('vkladka_profil_knopka').className = 'vkladka_knopka' + (imya === 'profil' ? ' aktivnaya_vkladka' : '');
+            document.getElementById('vkladka_msg_knopka').className = 'vkladka_knopka' + (imya === 'msg' ? ' aktivnaya_vkladka' : '');
+            
             if (imya === 'profil') obnovit_kartochku_profilya();
+            if (imya === 'msg') msg_inicializirovat();
+            if (imya === 'lenta') risovat_lentu();
         }
 
-        function init_paneli() { slushat_set_ambukov(); slushat_set_laykov(); slushat_set_profiley(); }
+        function init_paneli() { slushat_set_ambukov(); slushat_set_laykov(); slushat_set_profiley(); slushat_moderatorov(); }
 
         function slushat_set_ambukov() {
             ambukoviy_graf.map().on((data) => {
                 if (!data || !data.id || !data.author) return;
-                
-                if (data.deleted) {
-                    cherniy_banan = cherniy_banan.filter(p => p.id !== data.id);
-                } else {
+                if (data.deleted) cherniy_banan = cherniy_banan.filter(p => p.id !== data.id);
+                else {
                     const idx = cherniy_banan.findIndex(p => p.id === data.id);
-                    if (idx !== -1) cherniy_banan[idx] = data; 
-                    else cherniy_banan.push(data);
+                    if (idx !== -1) cherniy_banan[idx] = data; else cherniy_banan.push(data);
                 }
-
-                cherniy_banan.sort((a, b) => b.timestamp - a.timestamp);
-                localStorage.setItem('kash_postov', JSON.stringify(cherniy_banan));
+                cherniy_banan.sort((a, b) => (b.timestamp || 0) - (a.timestamp || 0));
                 risovat_lentu(); risovat_lentu_profilya(); obnovit_kartochku_profilya();
             });
         }
 
-        function slushat_set_laykov() { layki_baza.map().on((val, key) => { if (key) { globalnie_layki[key] = val; risovat_lentu(); risovat_lentu_profilya(); } }); }
-        function slushat_set_profiley() { profili_baza.map().on((val, key) => { if(key && val) { globalnie_profili[key] = { ...globalnie_profili[key], ...val }; obnovit_kartochku_profilya(); } }); }
-
-        function postavit_layk(p_id) {
-            const klyuch = p_id + '_' + danya_usera.name;
-            layki_baza.get(klyuch).put(globalnie_layki[klyuch] === 'yes' ? 'no' : 'yes');
+        function slushat_set_laykov() { layki_baza.map().on((val, key) => { globalnie_layki[key] = val; risovat_lentu(); risovat_lentu_profilya(); }); }
+        
+        function slushat_set_profiley() { 
+            profili_baza.map().on((val, key) => { 
+                if(key && val && typeof val === 'object') { 
+                    globalnie_profili[key] = { ...globalnie_profili[key], ...val }; 
+                    obnovit_kartochku_profilya(); 
+                    document.getElementById('stats_users_count').innerText = `Людей в сети: ${Object.keys(globalnie_profili).length}`;
+                } 
+            }); 
         }
 
-        function poluchit_kolvo_laykov(p_id) { let s = 0; Object.keys(globalnie_layki).forEach(k => { if (k.startsWith(p_id + '_') && globalnie_layki[k] === 'yes') s++; }); return s; }
-        function ya_postavil_layk(p_id) { return globalnie_layki[p_id + '_' + danya_usera.name] === 'yes'; }
-        function poluchit_vse_layki_usera(username) { let s = 0; cherniy_banan.forEach(p => { if (p.author === username) s += poluchit_kolvo_laykov(p.id); }); return s; }
+        function slushat_moderatorov() {
+            MODERATOR_PUBS.forEach(pub => {
+                const modNode = dmitriy_gundon.user(pub);
+                modNode.get('mod_mutes').map().on((expireTime, user) => { muted_users[user] = expireTime; risovat_lentu(); });
+                modNode.get('mod_edits').map().on((data, postId) => { if(data) edited_posts[postId] = data; risovat_lentu(); });
+            });
+        }
 
-        function smotret_profil(username) { tekuschiy_prosmotr_юзера = username; pereklyuchit_vkladku('profil'); }
+        function isModerator() { return kents_v_seti.is && MODERATOR_PUBS.includes(kents_v_seti.is.pub); }
+
+        function модерация_мут(username) {
+            if(!isModerator()) return;
+            if(confirm(`Выдать мут пользователю ${username} на 5 минут?`)) {
+                kents_v_seti.get('mod_mutes').get(username).put(Date.now() + (5 * 60 * 1000));
+                alert('Пользователь заглушен.');
+            }
+        }
+
+        function модерация_редактировать(postId) {
+            if(!isModerator()) return;
+            const newText = prompt("Новый текст поста (пусто - только удалить картинку):");
+            if(newText !== null) {
+                kents_v_seti.get('mod_edits').get(postId).put({ text: newText, editedByMod: true });
+                alert('Пост отредактирован.');
+            }
+        }
+
+        function sozdat_post_v_baze(text, imgData) {
+            if (imgData && !isSafeImageUrl(imgData)) return alert('Небезопасный формат');
+            const p_id = 'post_' + Date.now() + '_' + Math.random().toString(36).substr(2, 6);
+            ambukoviy_graf.get(p_id).put({ id: p_id, author: danya_usera.name, text: String(text || '').slice(0, 280), img: imgData || '', mood: document.getElementById('vibor_statusa').value || '☕', time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }), timestamp: Date.now(), deleted: false });
+            document.getElementById('tekst_novogo_posta').value = ''; document.getElementById('gus_hrustalniy').value = '';
+        }
+
+        function удалитьПост(p_id) { if(confirm('Удалить навсегда?')) ambukoviy_graf.get(p_id).get('deleted').put(true); }
+        function postavit_layk(p_id) { const k = p_id + '_' + danya_usera.name; layki_baza.get(k).put(globalnie_layki[k] === 'yes' ? 'no' : 'yes'); }
+        function poluchit_kolvo_laykov(p_id) { return Object.keys(globalnie_layki).filter(k => k.startsWith(p_id + '_') && globalnie_layki[k] === 'yes').length; }
+        
+        function smotret_profil(username) { if (isValidNick(username)) { tekuschiy_prosmotr_юзера = username; pereklyuchit_vkladku('profil'); } }
         function smotret_svoy_profil() { tekuschiy_prosmotr_юзера = danya_usera.name; obnovit_kartochku_profilya(); }
-
+        
         function sohranit_nick_messengera() {
-            const nick = document.getElementById('vvod_messenger_nick').value.trim().toLowerCase().replace(/\s+/g, '');
-            if(!nick) return alert('Укажите ник!');
-            profili_baza.get(danya_usera.name).get('msgNick').put(nick);
-            localStorage.setItem('messenger_auto_nick', nick);
-            alert('Связано!');
+            const nick = sanitizeNick(document.getElementById('vvod_messenger_nick').value);
+            if(!nick) return alert('Укажите ник (латиница, цифры, 2-20 символов)!');
+            profili_baza.get(danya_usera.name).get('msgNick').put(nick); alert('Связано!');
         }
-
-        function izmenit_avatar(input) {
-            const fil = input.files[0]; if (!fil) return;
-            szhat_kartinku(fil, 150, (kod) => { profili_baza.get(danya_usera.name).get('avatar').put(kod); });
-        }
+        
+        function izmenit_avatar(file) { szhat_kartinku(file, 150, (kod) => { if(isSafeImageUrl(kod)) profili_baza.get(danya_usera.name).get('avatar').put(kod); }); }
 
         function rasschitat_vremya_saita(timestamp) {
-            const diff = Date.now() - timestamp;
-            const mins = Math.floor(diff / 60000);
+            const mins = Math.floor((Date.now() - timestamp) / 60000);
             if (mins < 60) return mins + " мин.";
-            const hours = Math.floor(mins / 60);
-            if (hours < 24) return hours + " ч.";
-            return Math.floor(hours / 24) + " дн.";
+            const hours = Math.floor(mins / 60); return hours < 24 ? hours + " ч." : Math.floor(hours / 24) + " дн.";
         }
 
         function obnovit_kartochku_profilya() {
             if (!tekuschiy_prosmotr_юзера) return;
             document.getElementById('anketa_name').innerText = tekuschiy_prosmotr_юзера;
-            document.getElementById('anketa_likes_count').innerText = poluchit_vse_layki_usera(tekuschiy_prosmotr_юзера);
+            document.getElementById('anketa_likes_count').innerText = cherniy_banan.filter(p => p.author === tekuschiy_prosmotr_юзера).reduce((sum, p) => sum + poluchit_kolvo_laykov(p.id), 0);
             
             const p_data = globalnie_profili[tekuschiy_prosmotr_юзера];
-            
-            if (p_data && p_data.regTime) {
-                document.getElementById('anketa_reg_date').innerText = new Date(p_data.regTime).toLocaleDateString();
-                document.getElementById('anketa_site_age').innerText = rasschitat_vremya_saita(p_data.regTime);
-            } else {
-                document.getElementById('anketa_reg_date').innerText = "Недавно";
-                document.getElementById('anketa_site_age').innerText = "1 мин.";
-            }
+            if (p_data && p_data.regTime) { document.getElementById('anketa_reg_date').innerText = new Date(p_data.regTime).toLocaleDateString(); document.getElementById('anketa_site_age').innerText = rasschitat_vremya_saita(p_data.regTime); } 
+            else { document.getElementById('anketa_reg_date').innerText = "Недавно"; document.getElementById('anketa_site_age').innerText = "1 мин."; }
 
-            document.getElementById('profil_avatar_container').innerHTML = (p_data && p_data.avatar) ? `<img src="${p_data.avatar}" class="ava_kartinka">` : '👤';
+            const avatarContainer = document.getElementById('profil_avatar_container');
+            if (p_data && p_data.avatar && isSafeImageUrl(p_data.avatar)) { avatarContainer.innerHTML = `<img src="${p_data.avatar}" class="ava_kartinka" alt="Аватар">`; } 
+            else { avatarContainer.innerHTML = '<span class="ava_zaglushka">👤</span>'; }
+            
             document.getElementById('anketa_messenger_nick').innerText = (p_data && p_data.msgNick) ? '@' + p_data.msgNick : 'не указан';
 
-            const флагЯ = tekuschiy_prosmotr_юзера === danya_usera.name;
-            document.getElementById('zagol_anketi').innerText = флагЯ ? 'Мой Профиль' : 'Профиль друга';
-            document.getElementById('blok_izmeneniya_messenger').className = флагЯ ? '' : 'skritiy_blok';
-            document.getElementById('blok_zagruzki_ava').className = флагЯ ? '' : 'skritiy_blok';
-            document.getElementById('blok_knopki_vernutsya').className = флагЯ ? 'skritiy_blok' : 'knopka_seraya';
-            if(флагЯ && p_data && p_data.msgNick) document.getElementById('vvod_messenger_nick').value = p_data.msgNick;
+            const flag = tekuschiy_prosmotr_юзера === danya_usera.name;
+            document.getElementById('zagol_anketi').innerText = flag ? 'Мой Профиль' : 'Профиль друга';
+            document.getElementById('blok_izmeneniya_messenger').className = flag ? '' : 'skritiy_blok';
+            document.getElementById('blok_zagruzki_ava').className = flag ? '' : 'skritiy_blok';
+            document.getElementById('blok_knopki_vernutsya').className = flag ? 'skritiy_blok' : '';
+            if(flag && p_data && p_data.msgNick) document.getElementById('vvod_messenger_nick').value = p_data.msgNick;
             
             risovat_lentu_profilya();
         }
 
         function risovat_lentu() {
-            const cnt = document.getElementById('lenta_postov'); cnt.innerHTML = '';
-            if(cherniy_banan.length === 0) { cnt.innerHTML = '<div style="color:#777;padding:5px;">Стена пуста.</div>'; return; }
-            cherniy_banan.forEach(p => cnt.appendChild(sozdat_html_posta(p)));
+            const cnt = document.getElementById('lenta_postov'); if (!cnt) return; cnt.innerHTML = '';
+            cherniy_banan.forEach(p => { if(!(muted_users[p.author] && muted_users[p.author] > Date.now())) cnt.appendChild(sozdat_html_posta(p)); });
+            if(cnt.innerHTML==='') cnt.innerHTML = '<div style="color:#777;padding:5px;">Стена пуста.</div>';
         }
 
         function risovat_lentu_profilya() {
-            const cnt = document.getElementById('lenta_postov_usera'); cnt.innerHTML = '';
-            const p_posts = cherniy_banan.filter(p => p.author === tekuschiy_prosmotr_юзера);
-            if(p_posts.length === 0) { cnt.innerHTML = '<div style="color:#777;padding:5px;">Нет записей.</div>'; return; }
-            p_posts.forEach(p => cnt.appendChild(sozdat_html_posta(p)));
+            const cnt = document.getElementById('lenta_postov_usera'); if (!cnt) return; cnt.innerHTML = '';
+            cherniy_banan.filter(p => p.author === tekuschiy_prosmotr_юзера).forEach(p => cnt.appendChild(sozdat_html_posta(p)));
         }
 
         function sozdat_html_posta(post) {
             const el = document.createElement('div'); el.className = 'kartochка_posta';
-            let imgHtml = post.img ? `<img src="${post.img}" class="kartinka_v_poste">` : '';
-            let l_count = poluchit_kolvo_laykov(post.id);
-            let l_class = ya_postavil_layk(post.id) ? 'aktivniy_layk' : '';
-            
-            let knopkaУдаленияПоста = '';
-            if (post.author === danya_usera.name) {
-                knopkaУдаленияПоста = `<button class="knopka_del_posta" onclick="удалитьПост('${post.id}')">× Удалить пост</button>`;
-            }
+            const isEditedByMod = edited_posts[post.id] && edited_posts[post.id].editedByMod;
+            const postText = isEditedByMod ? edited_posts[post.id].text : post.text;
+            const postImg = isEditedByMod ? null : post.img;
 
             const p_data = globalnie_profili[post.author];
-            let ava = (p_data && p_data.avatar) ? `<img src="${p_data.avatar}" class="mini_ava">` : `<div class="mini_ava" style="display:flex;align-items:center;justify-content:center;background:#e1e1e1;">👤</div>`;
-
-            el.innerHTML = `
-                ${ava}
-                <div class="pravaya_chast_posta">
-                    <div>
-                        <span>${post.mood || '☕'}</span>
-                        <a href="#" class="avtor_posta" onclick="smotret_profil('${ochistka_koda(post.author)}'); return false;">${ochistka_koda(post.author)}</a>
-                        <span class="vremya_posta">${post.time || ''}</span>
-                    </div>
-                    <div class="tekst_posta">${ochistka_koda(post.text)}</div>
-                    ${imgHtml}
-                    <div class="line_laykov">
-                        <div onclick="postavit_layk('${post.id}')" class="knopka_serdechko ${l_class}">♥ <span style="font-size:12px;color:#777;">${l_count}</span></div>
-                        ${knopkaУдаленияПоста}
-                    </div>
-                </div>
-            `;
-            return el;
-        }
-
-        function svyazat_knopki_vxoda() {
-            const st = document.getElementById('oshibka_vvoda');
-            document.getElementById('knopka_regi').onclick = () => {
-                const u = document.getElementById('burmalda').value.trim(), p = document.getElementById('osika_v_teset').value.trim();
-                if(!u || !p) return;
-                kents_v_seti.create(u, p, (ack) => {
-                    if (ack.err) st.innerText = ack.err;
-                    else { profili_baza.get(u).put({ regTime: Date.now() }); st.innerText = 'Готово! Нажмите Войти.'; }
-                });
-            };
-            document.getElementById('knopka_vxoda').onclick = () => {
-                const u = document.getElementById('burmalda').value.trim(), p = document.getElementById('osika_v_teset').value.trim();
-                if(!u || !p) return;
-                kents_v_seti.auth(u, p, (ack) => {
-                    if (ack.err) st.innerText = ack.err;
-                    else {
-                        danya_usera = { name: u }; localStorage.setItem('vofshiy_yuzer', JSON.stringify(danya_usera));
-                        tekuschiy_prosmotr_юзера = u; pereklyuchit_ekran('glavniy_ekran'); init_paneli();
-                    }
-                });
-            };
+            const avaHTML = p_data && p_data.avatar && isSafeImageUrl(p_data.avatar) ? `<img src="${p_data.avatar}" class="mini_ava">` : `<div class="mini_ava" style="display:flex;align-items:center;justify-content:center;">👤</div>`;
+            
+            let html = `${avaHTML} <div class="pravaya_chast_posta"> <div> <span>${post.mood || '☕'}</span> <a href="#" class="avtor_posta" data-action="view-profile" data-nick="${post.author}">${post.author}</a> <span class="vremya_posta">${post.time || ''}</span> </div> <div class="tekst_posta">${escapeHtml(postText) || ''}</div> ${isEditedByMod ? '<span class="mod_metka">Отредактировано модератором</span>' : ''}`;
+            
+            if (postImg && isSafeImageUrl(postImg)) html += `<img src="${postImg}" class="kartinka_v_poste" onclick="document.getElementById('modal_img').src=this.src; document.getElementById('modal_kartinki').classList.remove('skritiy_blok');">`;
+            
+            html += `<div class="line_laykov"> <div class="knopka_serdechko ${globalnie_layki[post.id + '_' + danya_usera.name] === 'yes' ? 'aktivniy_layk' : ''}" data-action="like" data-id="${post.id}"> ♥ ${poluchit_kolvo_laykov(post.id)} </div>`;
+            
+            if (post.author === danya_usera.name) html += `<button class="knopka_del_posta" data-action="delete-post" data-id="${post.id}">× Удалить</button>`;
+            if (isModerator()) html += `<button class="knopka_mod_posta" data-action="mod-mute" data-nick="${post.author}">[Мут 5м]</button> <button class="knopka_mod_posta" data-action="mod-edit" data-id="${post.id}">[Изменить]</button>`;
+            
+            html += `</div></div>`; el.innerHTML = html; return el;
         }
 
         function szhat_kartinku(file, max_size, callback) {
@@ -356,17 +680,152 @@
                 const canvas = document.createElement('canvas'); const ctx = canvas.getContext('2d'); const img = new Image();
                 img.onload = () => {
                     let w = img.width, h = img.height;
-                    if (w > max_size || h > max_size) {
-                        if (w > h) { h = Math.round((h * max_size) / w); w = max_size; } else { w = Math.round((w * max_size) / h); h = max_size; }
-                    }
+                    if (w > max_size || h > max_size) { if (w > h) { h = Math.round((h * max_size) / w); w = max_size; } else { w = Math.round((w * max_size) / h); h = max_size; } }
                     canvas.width = w; canvas.height = h; ctx.drawImage(img, 0, 0, w, h);
-                    callback(canvas.toDataURL('image/jpeg', 0.5));
+                    const result = canvas.toDataURL('image/jpeg', 0.6);
+                    if (isSafeImageUrl(result)) callback(result); else alert('Ошибка обработки');
                 };
-                img.src = chitalka.result;
+                img.onerror = () => alert('Не удалось загрузить картинку'); img.src = chitalka.result;
             };
             chitalka.readAsDataURL(file);
         }
-        function ochistka_koda(str) { return str ? str.replace(/[&<>'"]/g, t => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;' }[t] || t)) : ''; }
+
+        function zakrit_modal() { document.getElementById('modal_kartinki').classList.add('skritiy_blok'); document.getElementById('modal_img').src = ''; }
+
+        // ============================================================
+        // === МЕССЕНДЖЕР (ИЗ ОРИГИНАЛА) ===
+        // ============================================================
+        let msg_inited = false;
+        function msg_inicializirovat() {
+            if (msg_inited) return; msg_inited = true;
+            msg_chats_db.get(danya_usera.name).map().on((val, key) => {
+                if (!key || key === '_') return;
+                let time = typeof val === 'number' ? val : (val && (val.time || val.timestamp)) ? (val.time || val.timestamp) : 0;
+                if (time > 0) { msg_dialogs[key] = time; msg_risovat_spisok(); }
+            });
+        }
+
+        function msg_risovat_spisok() {
+            const cont = document.getElementById('msg_spisok');
+            const friends = Object.keys(msg_dialogs).sort((a, b) => (msg_dialogs[b] || 0) - (msg_dialogs[a] || 0));
+            cont.innerHTML = '';
+            if (friends.length === 0) return cont.innerHTML = '<div class="msg_net">Нет диалогов</div>';
+            
+            const frag = document.createDocumentFragment();
+            friends.forEach(friend => {
+                const el = document.createElement('div'); el.className = 'msg_dialog_el' + (msg_current_friend === friend ? ' aktivniy' : '');
+                const nameDiv = document.createElement('div'); nameDiv.className = 'msg_imya'; nameDiv.textContent = friend;
+                const timeDiv = document.createElement('div'); timeDiv.className = 'msg_vremya'; timeDiv.textContent = msg_dialogs[friend] ? new Date(msg_dialogs[friend]).toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'}) : '';
+                el.appendChild(nameDiv); el.appendChild(timeDiv); el.addEventListener('click', () => msg_otkrit_dialog(friend));
+                frag.appendChild(el);
+            });
+            cont.appendChild(frag);
+        }
+
+        function msg_nachat_dialog() {
+            const friend = sanitizeNick(document.getElementById('msg_vvod_druga').value);
+            if (!friend) return alert('Введите ник друга!');
+            if (friend === danya_usera.name) return alert('Нельзя написать самому себе 🙂');
+            document.getElementById('msg_vvod_druga').value = '';
+            const now = Date.now();
+            msg_chats_db.get(danya_usera.name).get(friend).put(now); msg_chats_db.get(friend).get(danya_usera.name).put(now);
+            msg_otkrit_dialog(friend);
+        }
+
+        function msg_otkrit_dialog(friend) {
+            if (!isValidNick(friend)) return;
+            msg_current_friend = friend; msg_editing_id = null; msg_otmena_redakt(); msg_pending_image = null;
+            document.getElementById('msg_imya_fayla').innerText = ''; document.getElementById('msg_file').value = '';
+            document.getElementById('msg_sobesednik').textContent = friend;
+            document.getElementById('msg_chat_area').className = 'msg_chat_area'; document.getElementById('msg_sidebar').className = 'msg_sidebar skritiy';
+            msg_cache = {}; document.getElementById('msg_okno').innerHTML = '<div class="msg_net">Загрузка...</div>';
+            msg_slushat_soobsheniya(); msg_risovat_spisok();
+        }
+
+        function msg_k_chatam() { msg_current_friend = null; document.getElementById('msg_chat_area').className = 'msg_chat_area skritiy'; document.getElementById('msg_sidebar').className = 'msg_sidebar'; }
+        function msg_poluchit_klyuch(n1, n2) { return [n1, n2].sort().join('___'); }
+
+        function msg_slushat_soobsheniya() {
+            if (!msg_current_friend) return;
+            const chatKey = msg_poluchit_klyuch(danya_usera.name, msg_current_friend);
+            msg_messages_db.get(chatKey).map().on((data, msgId) => {
+                if (!msgId || msgId === '_') return;
+                if (!data) delete msg_cache[msgId];
+                else if (data.deleted) msg_cache[msgId] = { id: msgId, deleted: true, timestamp: data.timestamp || 0 };
+                else msg_cache[msgId] = { ...data, id: msgId };
+                msg_risovat_soobsheniya();
+            });
+        }
+
+        function msg_risovat_soobsheniya() {
+            const cont = document.getElementById('msg_okno');
+            const msgs = Object.values(msg_cache).filter(m => m && m.id).sort((a, b) => (a.timestamp || 0) - (b.timestamp || 0));
+            cont.innerHTML = '';
+            if (msgs.length === 0) return cont.innerHTML = '<div class="msg_net">Сообщений пока нет. Напишите первым!</div>';
+
+            const frag = document.createDocumentFragment();
+            msgs.forEach(msg => {
+                const el = document.createElement('div');
+                if (msg.deleted) { el.className = 'msg_balun udaleno'; el.textContent = '🗑 Сообщение удалено'; frag.appendChild(el); return; }
+                const moi = msg.from === danya_usera.name; el.className = 'msg_balun ' + (moi ? 'moi' : 'chuzhoi');
+                
+                const textDiv = document.createElement('div'); textDiv.textContent = msg.text || ''; el.appendChild(textDiv);
+                if (msg.img && isSafeImageUrl(msg.img)) {
+                    const img = document.createElement('img'); img.src = msg.img; img.className = 'msg_kartinka_balun';
+                    img.addEventListener('click', () => { document.getElementById('modal_img').src=msg.img; document.getElementById('modal_kartinki').classList.remove('skritiy_blok');});
+                    el.appendChild(img);
+                }
+                
+                const footer = document.createElement('div');
+                const timeSpan = document.createElement('span'); timeSpan.className = 'msg_vremya_soob'; timeSpan.textContent = msg.time || ''; footer.appendChild(timeSpan);
+                if (msg.edited) { const redSpan = document.createElement('span'); redSpan.className = 'msg_metka_red'; redSpan.textContent = ' (ред.)'; footer.appendChild(redSpan); }
+                if (moi) {
+                    const editBtn = document.createElement('button'); editBtn.className = 'msg_knopka_act redakt'; editBtn.textContent = '✎ изм.'; editBtn.dataset.action="edit-msg"; editBtn.dataset.id=msg.id; footer.appendChild(editBtn);
+                    const delBtn = document.createElement('button'); delBtn.className = 'msg_knopka_act udalit'; delBtn.textContent = '🗑 удл.'; delBtn.dataset.action="delete-msg"; delBtn.dataset.id=msg.id; footer.appendChild(delBtn);
+                }
+                el.appendChild(footer); frag.appendChild(el);
+            });
+            cont.appendChild(frag); cont.scrollTop = cont.scrollHeight;
+        }
+
+        function msg_otpravit() {
+            const input = document.getElementById('msg_vvod'); const text = input.value.trim();
+            if ((!text && !msg_pending_image) || !msg_current_friend) return;
+            const chatKey = msg_poluchit_klyuch(danya_usera.name, msg_current_friend);
+            const time = new Date().toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'}); const timestamp = Date.now();
+
+            if (msg_editing_id) {
+                const oldMsg = msg_cache[msg_editing_id];
+                if (oldMsg) msg_messages_db.get(chatKey).get(msg_editing_id).put({ id: oldMsg.id, from: oldMsg.from, text: String(text || '').slice(0, 1000), img: oldMsg.img, time: oldMsg.time, timestamp: oldMsg.timestamp, edited: true, editTimestamp: timestamp, deleted: false });
+                msg_otmena_redakt();
+            } else {
+                const msgId = 'msg_' + timestamp + '_' + Math.random().toString(36).substr(2, 6);
+                if (msg_pending_image && !isSafeImageUrl(msg_pending_image)) return alert('Ошибка безопасности');
+                msg_messages_db.get(chatKey).get(msgId).put({ id: msgId, from: danya_usera.name, text: String(text || '').slice(0, 1000), img: msg_pending_image || '', time: time, timestamp: timestamp, edited: false, deleted: false });
+                msg_chats_db.get(danya_usera.name).get(msg_current_friend).put(timestamp); msg_chats_db.get(msg_current_friend).get(danya_usera.name).put(timestamp);
+                msg_pending_image = null; document.getElementById('msg_imya_fayla').innerText = ''; document.getElementById('msg_file').value = '';
+            }
+            input.value = ''; input.focus();
+        }
+
+        function msg_redaktirovat(msgId) {
+            if (!isValidId(msgId)) return; const msg = msg_cache[msgId];
+            if (!msg || msg.from !== danya_usera.name || msg.deleted) return;
+            msg_editing_id = msgId; document.getElementById('msg_vvod').value = msg.text || '';
+            document.getElementById('msg_otmena').className = 'knopka_seraya'; document.getElementById('msg_status_redakt').className = ''; document.getElementById('msg_vvod').focus();
+        }
+
+        function msg_udalit(msgId) {
+            if (!isValidId(msgId)) return; const msg = msg_cache[msgId];
+            if (!msg || msg.from !== danya_usera.name) return;
+            if (!confirm('Удалить это сообщение?')) return;
+            msg_messages_db.get(msg_poluchit_klyuch(danya_usera.name, msg_current_friend)).get(msgId).put({ id: msgId, from: msg.from, text: '', img: '', time: msg.time, timestamp: msg.timestamp, deleted: true, deletedAt: Date.now() });
+        }
+
+        function msg_otmena_redakt() {
+            msg_editing_id = null; document.getElementById('msg_vvod').value = '';
+            document.getElementById('msg_otmena').className = 'knopka_seraya skritiy_blok'; document.getElementById('msg_status_redakt').className = 'skritiy_blok';
+        }
     </script>
 </body>
 </html>
