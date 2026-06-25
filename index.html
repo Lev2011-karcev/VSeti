@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <meta http-equiv="Content-Security-Policy" content="default-src 'self' https://cdn.jsdelivr.net https://gun-manhattan.herokuapp.com https://gundb-relay.onrender.com; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline'; img-src 'self' data: https: http: blob:; connect-src 'self' https://gun-manhattan.herokuapp.com https://gundb-relay.onrender.com wss://gun-manhattan.herokuapp.com wss://gundb-relay.onrender.com; font-src 'self' data:;">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self' https://cdn.jsdelivr.net https://gun-manhattan.herokuapp.com https://gundb-relay.onrender.com; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline'; img-src 'self' data: https: http: blob:; media-src 'self' data: blob:; connect-src 'self' https://gun-manhattan.herokuapp.com https://gundb-relay.onrender.com wss://gun-manhattan.herokuapp.com wss://gundb-relay.onrender.com; font-src 'self' data:;">
     <title>ВСети.ру — p2p-версия</title>
     <script src="https://cdn.jsdelivr.net/npm/gun/gun.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/gun/sea.js"></script>
@@ -77,7 +77,7 @@
         /* === МЕССЕНДЖЕР === */
         .msg_container { display: flex; gap: 12px; }
         .msg_sidebar { flex: 0 0 240px; display: flex; flex-direction: column; gap: 8px; }
-        .msg_chat_area { flex: 1; display: flex; flex-direction: column; min-width: 0; }
+        .msg_chat_area { flex: 1; display: flex; flex-direction: column; min-width: 0; position: relative; }
         .msg_spisok { max-height: 450px; overflow-y: auto; background: #fff; border: 1px solid #bdc7d8; padding: 4px; }
         .msg_dialog_el { padding: 8px; border-bottom: 1px dotted #d8dfea; cursor: pointer; display: flex; justify-content: space-between; align-items: center; }
         .msg_dialog_el:hover { background: #eceff5; }
@@ -106,22 +106,141 @@
         .modal_overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.8); z-index: 1000; display: flex; align-items: center; justify-content: center; cursor: pointer; }
         .modal_overlay img { max-width: 95%; max-height: 95%; border: 3px solid #fff; }
 
+        /* === МОБИЛЬНАЯ ОПТИМИЗАЦИЯ === */
         @media (max-width: 680px) {
-            .msg_container { flex-direction: column; }
+            .msg_container { flex-direction: column; height: calc(100vh - 140px); }
             .msg_sidebar { flex: 1 1 auto; width: 100%; }
-            .msg_chat_area { width: 100%; }
+            .msg_chat_area { width: 100%; flex: 1; display: flex; flex-direction: column; }
             .msg_sidebar.skrityi { display: none; }
             .msg_chat_area.skrityi { display: none; }
             .blok_profilya_verh { flex-direction: column; align-items: center; text-align: center; }
             .knopka_sinyaya, .knopka_seraya { width: 100%; text-align: center; padding: 10px; margin-bottom: 4px; }
             .captcha_cell { font-size: 32px; }
+
+            /* Умная фиксация строки ввода для мобилок */
+            .msg_okno {
+                flex: 1;
+                margin-bottom: 110px; /* Место под фиксированные панели */
+                border: none;
+                border-top: 1px solid #bdc7d8;
+                padding-bottom: 15px;
+            }
+            .msg_panel_vvoda {
+                position: fixed;
+                bottom: 0;
+                left: 0;
+                right: 0;
+                background: #fff;
+                padding: 10px;
+                border-top: 1px solid #bdc7d8;
+                z-index: 999;
+                margin: 0;
+                align-items: center;
+                box-shadow: 0 -2px 5px rgba(0,0,0,0.05);
+            }
+            .msg_panel_vvoda textarea {
+                font-size: 16px; /* Защита от автозума в iOS Safari */
+                padding: 8px;
+                border-radius: 10px;
+                min-height: 40px;
+            }
+            .msg_panel_dop {
+                position: fixed;
+                bottom: 60px;
+                left: 0;
+                right: 0;
+                background: rgba(255,255,255,0.95);
+                padding: 5px 10px;
+                z-index: 998;
+                margin: 0;
+                justify-content: flex-start;
+                border-top: 1px solid #bdc7d8;
+            }
         }
+
+        /* === СТАТУС ПОДКЛЮЧЕНИЯ (ВХОД) === */
+        .conn_status_line { display: flex; align-items: center; gap: 6px; font-size: 11px; padding: 6px 8px; margin-bottom: 8px; border: 1px solid #d8dfea; background: #eceff5; border-radius: 3px; color: #555; }
+        .conn_dot { width: 8px; height: 8px; border-radius: 50%; background: #cc0000; flex-shrink: 0; transition: background 0.3s; }
+        .conn_dot.ok { background: #2e7d32; }
+        .conn_dot.wait { background: #e0a800; animation: conn_blink 1s infinite; }
+        @keyframes conn_blink { 0%, 100% { opacity: 1; } 50% { opacity: 0.3; } }
+        .vxod_spinner { display: inline-block; width: 11px; height: 11px; border: 2px solid rgba(255,255,255,0.5); border-top-color: #fff; border-radius: 50%; animation: spin360 0.7s linear infinite; margin-right: 6px; vertical-align: middle; }
+        @keyframes spin360 { to { transform: rotate(360deg); } }
+        .knopka_sinyaya:disabled, .knopka_seraya:disabled { opacity: 0.6; cursor: not-allowed; }
+        .vxod_retry_link { color: #3b5998; cursor: pointer; text-decoration: underline; font-weight: bold; margin-left: 4px; }
+
+        /* === МЕССЕНДЖЕР v2: ОБНОВЛЁННЫЙ ИНТЕРФЕЙС === */
+        .msg_sidebar_head { display: flex; justify-content: space-between; align-items: center; }
+        .msg_moy_status_dot { width: 7px; height: 7px; border-radius: 50%; background: #2e7d32; display: inline-block; margin-right: 4px; }
+        .msg_dialog_el { padding: 7px 8px; gap: 8px; }
+        .msg_dialog_ava { width: 32px; height: 32px; border-radius: 50%; object-fit: cover; background: #d8dfea; flex-shrink: 0; display: flex; align-items: center; justify-content: center; font-size: 16px; color: #99a6c2; overflow: hidden; }
+        .msg_dialog_ava img { width: 100%; height: 100%; object-fit: cover; }
+        .msg_dialog_glavnoe { flex: 1; min-width: 0; }
+        .msg_dialog_stroka1 { display: flex; justify-content: space-between; align-items: baseline; gap: 6px; }
+        .msg_dialog_preview { font-size: 11px; color: #888; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 150px; }
+        .msg_dialog_unread { background: #3b5998; color: #fff; font-size: 10px; font-weight: bold; border-radius: 8px; padding: 1px 6px; flex-shrink: 0; }
+
+        .msg_zagolovok_sobesednik { display: flex; align-items: center; gap: 8px; }
+        .msg_zagolovok_ava { width: 26px; height: 26px; border-radius: 50%; object-fit: cover; background: #d8dfea; display: flex; align-items: center; justify-content: center; font-size: 13px; overflow: hidden; }
+        .msg_zagolovok_ava img { width: 100%; height: 100%; object-fit: cover; }
+        .msg_zagolovok_imya_blok { display: flex; flex-direction: column; line-height: 13px; }
+        .msg_zagolovok_status { font-size: 10px; color: #2e7d32; font-weight: normal; }
+
+        .msg_okno { background: #e9edf3 url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='60' height='60'%3E%3Crect width='60' height='60' fill='%23e9edf3'/%3E%3Ccircle cx='30' cy='30' r='1' fill='%23d8dfea'/%3E%3C/svg%3E"); }
+        .msg_balun { padding: 6px 8px 5px; box-shadow: 0 1px 1px rgba(0,0,0,0.08); }
+        .msg_balun.chuzhoi { display: flex; flex-direction: column; }
+        .msg_pechataet { font-size: 11px; color: #888; font-style: italic; padding: 4px 2px; align-self: flex-start; }
+        .msg_pechataet .tochki span { animation: tochki_anim 1.2s infinite; opacity: 0; }
+        .msg_pechataet .tochki span:nth-child(2) { animation-delay: 0.2s; }
+        .msg_pechataet .tochki span:nth-child(3) { animation-delay: 0.4s; }
+        @keyframes tochki_anim { 0%, 100% { opacity: 0; } 50% { opacity: 1; } }
+
+        .msg_panel_dop { justify-content: flex-start; }
+        .msg_label_file, .msg_knopka_media { cursor: pointer; padding: 4px 9px; background: #eceff5; border: 1px solid #bdc7d8; border-radius: 3px; display: inline-flex; align-items: center; gap: 4px; font-size: 11px; color: #333; }
+        .msg_label_file:hover, .msg_knopka_media:hover { background: #d8dfea; }
+        .msg_knopka_media.rec_active { background: #fce8e6; border-color: #ea4335; color: #c5221f; font-weight: bold; }
+
+        /* === ГОЛОСОВЫЕ СООБЩЕНИЯ === */
+        .golos_player { display: flex; align-items: center; gap: 8px; min-width: 190px; max-width: 230px; }
+        .golos_play_btn { width: 30px; height: 30px; border-radius: 50%; background: #3b5998; color: #fff; border: none; cursor: pointer; flex-shrink: 0; font-size: 12px; display: flex; align-items: center; justify-content: center; }
+        .golos_play_btn:hover { background: #2d4373; }
+        .golos_progress_wrap { flex: 1; }
+        .golos_progress_bar { width: 100%; height: 4px; background: #d8dfea; border-radius: 2px; overflow: hidden; cursor: pointer; }
+        .golos_progress_fill { height: 100%; background: #3b5998; width: 0%; }
+        .golos_vremya { font-size: 10px; color: #888; margin-top: 2px; }
+        .msg_balun.moi .golos_play_btn { background: #29447e; }
+        .msg_balun.moi .golos_progress_bar { background: #b7c2dc; }
+
+        /* === ВИДЕО-КРУЖОЧКИ === */
+        .video_kruzhok_wrap { position: relative; width: 160px; height: 160px; border-radius: 50%; overflow: hidden; border: 3px solid #fff; box-shadow: 0 1px 3px rgba(0,0,0,0.3); cursor: pointer; background: #000; }
+        .video_kruzhok_wrap video { width: 100%; height: 100%; object-fit: cover; }
+        .video_kruzhok_play_overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; background: rgba(0,0,0,0.25); color: #fff; font-size: 30px; pointer-events: none; }
+        .video_kruzhok_wrap.playing .video_kruzhok_play_overlay { display: none; }
+        .video_kruzhok_dlitelnost { position: absolute; bottom: 6px; right: 10px; background: rgba(0,0,0,0.55); color: #fff; font-size: 10px; padding: 1px 5px; border-radius: 8px; }
+
+        /* === ЗАПИСЬ ГОЛОСА/ВИДЕО (ОВЕРЛЕЙ) === */
+        .zapis_overlay_panel { display: flex; align-items: center; gap: 10px; background: #fce8e6; border: 1px solid #ea4335; border-radius: 3px; padding: 6px 10px; margin-top: 8px; font-size: 12px; color: #c5221f; }
+        .zapis_rec_dot { width: 9px; height: 9px; border-radius: 50%; background: #ea4335; animation: conn_blink 1s infinite; flex-shrink: 0; }
+        .zapis_taimer { font-weight: bold; font-family: monospace; font-size: 13px; }
+        .zapis_stop_btn { margin-left: auto; background: #ea4335; color: #fff; border: none; padding: 4px 10px; border-radius: 3px; cursor: pointer; font-weight: bold; font-size: 11px; }
+        .zapis_cancel_btn { background: none; border: none; color: #888; cursor: pointer; font-size: 11px; text-decoration: underline; }
+        .video_preview_zapisi { width: 70px; height: 70px; border-radius: 50%; object-fit: cover; border: 2px solid #ea4335; background: #000; }
+
+        .post_media_panel { display: flex; gap: 6px; align-items: center; flex-wrap: wrap; margin-bottom: 8px; }
+        .post_media_btn { cursor: pointer; padding: 5px 10px; background: #eceff5; border: 1px solid #bdc7d8; border-radius: 3px; font-size: 11px; color: #333; display: inline-flex; align-items: center; gap: 4px; }
+        .post_media_btn:hover { background: #d8dfea; }
+        .post_pending_media_info { font-size: 11px; color: #3b5998; font-weight: bold; }
+        .post_pending_media_clear { color: #cc0000; cursor: pointer; margin-left: 6px; font-weight: bold; text-decoration: underline; }
     </style>
 </head>
 <body>
 
     <div id="ekran_avtorizacii" class="belaya_korobka" style="max-width: 360px; margin: 40px auto; padding: 15px;">
         <div class="zagolovok_korobki">Вход ВСети</div>
+        <div class="conn_status_line" id="conn_status_line">
+            <span class="conn_dot wait" id="conn_dot"></span>
+            <span id="conn_status_text">Подключаемся к p2p-сети...</span>
+        </div>
         <input id="burmalda" type="text" class="tekstovoe_pole" placeholder="Логин (eng)" maxlength="30" autocomplete="username">
         <input id="osika_v_teset" type="password" class="tekstovoe_pole" placeholder="Пароль" maxlength="60" autocomplete="current-password">
         <button id="knopka_vxoda" class="knopka_sinyaya" style="margin-bottom:6px; width:100%;">Войти</button>
@@ -170,7 +289,15 @@
                         <option value="😓">😓 Занят</option>
                     </select>
                     <textarea id="tekst_novogo_posta" rows="2" class="tekstovoe_pole" maxlength="280" placeholder="Напишите мысль на стене..."></textarea>
-                    <input type="file" id="gus_hrustalniy" accept="image/*" class="tekstovoe_pole" style="font-size:11px;">
+                    <div class="post_media_panel">
+                        <label class="post_media_btn">📷 Фото
+                            <input type="file" id="gus_hrustalniy" accept="image/*" class="skritiy_blok">
+                        </label>
+                        <span class="post_media_btn" id="post_rec_voice_btn">🎤 Голосовое</span>
+                        <span class="post_media_btn" id="post_rec_video_btn">🎥 Видео-кружок</span>
+                        <span class="post_pending_media_info skritiy_blok" id="post_pending_media_info"></span>
+                    </div>
+                    <div id="post_zapis_panel" class="skritiy_blok"></div>
                     <button id="otpravit_v_lentu" class="knopka_sinyaya" style="width:100%;">Опубликовать</button>
                 </div>
                 <div class="belaya_korobka">
@@ -219,9 +346,12 @@
                 <div class="msg_container">
                     <div class="msg_sidebar" id="msg_sidebar">
                         <div class="belaya_korobka" style="padding:8px;">
-                            <div class="zagolovok_korobki" style="margin-bottom:6px;">Новый диалог</div>
+                            <div class="msg_sidebar_head zagolovok_korobki" style="margin-bottom:6px;">
+                                <span>💬 Мессенджер</span>
+                                <span style="font-size:10px; font-weight:normal; color:#2e7d32;"><span class="msg_moy_status_dot"></span>я на связи</span>
+                            </div>
                             <input id="msg_vvod_druga" type="text" class="tekstovoe_pole" placeholder="Ник друга" style="margin-bottom:6px;" maxlength="30">
-                            <button id="msg_nachat" class="knopka_sinyaya" style="width:100%;">ОК</button>
+                            <button id="msg_nachat" class="knopka_sinyaya" style="width:100%;">Написать</button>
                         </div>
                         <div class="belaya_korobka" style="padding:6px;">
                             <div class="zagolovok_korobki" style="margin-bottom:4px;">Мои диалоги:</div>
@@ -233,10 +363,17 @@
 
                     <div class="msg_chat_area skritiy" id="msg_chat_area">
                         <div class="msg_zagolovok">
-                            <div>Диалог с: <span id="msg_sobesednik">-</span></div>
+                            <div class="msg_zagolovok_sobesednik">
+                                <div class="msg_zagolovok_ava" id="msg_zagolovok_ava">👤</div>
+                                <div class="msg_zagolovok_imya_blok">
+                                    <span id="msg_sobesednik">-</span>
+                                    <span class="msg_zagolovok_status">в сети p2p</span>
+                                </div>
+                            </div>
                             <button id="msg_k_chatam" class="knopka_seraya" style="padding:4px 10px; font-size:11px;">↩ К чатам</button>
                         </div>
                         <div id="msg_okno" class="msg_okno"></div>
+                        <div id="msg_pechataet_indikator" class="msg_pechataet skritiy_blok">собеседник печатает<span class="tochki"><span>.</span><span>.</span><span>.</span></span></div>
                         <div class="msg_panel_vvoda">
                             <textarea id="msg_vvod" class="tekstovoe_pole" rows="2" placeholder="Сообщение..." maxlength="1000"></textarea>
                             <button id="msg_poslat" class="knopka_sinyaya">Послать</button>
@@ -246,8 +383,11 @@
                             <label class="msg_label_file">📷 Картинка
                                 <input type="file" id="msg_file" accept="image/*" class="skritiy_blok">
                             </label>
+                            <span class="msg_knopka_media" id="msg_rec_voice_btn">🎤 Голосовое</span>
+                            <span class="msg_knopka_media" id="msg_rec_video_btn">🎥 Видео-кружок</span>
                             <span id="msg_imya_fayla" style="color:#3b5998;"></span>
                         </div>
+                        <div id="msg_zapis_panel" class="skritiy_blok"></div>
                         <div id="msg_status_redakt" class="skritiy_blok" style="font-size:11px; color:#777; margin-top:4px;">
                             ✏️ Редактирование сообщения...
                         </div>
@@ -267,7 +407,6 @@
         // ============================================================
         // === НАСТРОЙКИ МОДЕРАЦИИ ===
         // ============================================================
-        // Вставь сюда свой публичный ключ модератора! (Найдешь в F12 после входа)
         const MODERATOR_PUBS = [
             'Bgfj9NOBDr4DTmB65cS2kcuOCkcSJ8ZBgCVQrfj7k18.-lJ803ojhgwNWF4KNSsmioM6RBWq0J79Sr9W3q3okSQ',
             'КЛЮЧ_МОДЕРАТОРА_2'
@@ -282,11 +421,13 @@
         }
         function isValidId(id) { return typeof id === 'string' && /^[a-zA-Z0-9_\-]+$/.test(id); }
         function isSafeImageUrl(url) { return typeof url === 'string' && /^(data:image\/(png|jpeg|jpg|gif|webp);base64,|https?:\/\/)/i.test(url.trim()); }
+        function isSafeAudioUrl(url) { return typeof url === 'string' && /^data:audio\/(webm|ogg|mp4|mpeg|wav)(;codecs=[a-zA-Z0-9_\-.,="' ]+)?;base64,/i.test(url.trim()); }
+        function isSafeVideoUrl(url) { return typeof url === 'string' && /^data:video\/(webm|mp4)(;codecs=[a-zA-Z0-9_\-.,="' ]+)?;base64,/i.test(url.trim()); }
         function isValidNick(nick) { return typeof nick === 'string' && /^[a-zA-Z0-9_\-]{2,30}$/.test(nick); }
         function sanitizeNick(nick) { return String(nick || '').replace(/[^a-zA-Z0-9_\-]/g, '').slice(0, 30); }
 
         // ============================================================
-        // === КАПЧА С КАРТИНКАМИ (ИЗ ОРИГИНАЛА) ===
+        // === КАПЧА С КАРТИНКАМИ ===
         // ============================================================
         const captchaCategories = {
             'мотоциклами': ['🏍️', '🛵'], 'автомобилями': ['🚗', '🚙', '🚕'], 'автобусами': ['🚌', '🚐'],
@@ -378,6 +519,38 @@
         const profili_baza = dmitriy_gundon.get('moodin_p2p_fbook_profiles_v10');
         const msg_chats_db = dmitriy_gundon.get('vseti_messenger_chats_v3');
         const msg_messages_db = dmitriy_gundon.get('vseti_messenger_messages_v3');
+        const msg_typing_db = dmitriy_gundon.get('vseti_messenger_typing_v1');
+
+        let gun_connected_count = 0;
+        let gun_ever_connected = false;
+        function obnovit_status_soedineniya() {
+            const dot = document.getElementById('conn_dot');
+            const txt = document.getElementById('conn_status_text');
+            if (!dot || !txt) return;
+            if (gun_connected_count > 0) {
+                dot.className = 'conn_dot ok'; txt.innerHTML = `✓ Подключено к p2p-сети (${gun_connected_count} relay)`;
+            } else if (gun_ever_connected) {
+                dot.className = 'conn_dot'; txt.innerHTML = 'Связь потеряна, переподключение...';
+            } else {
+                dot.className = 'conn_dot wait'; txt.innerHTML = 'Подключаемся к p2p-сети...';
+            }
+        }
+        try {
+            dmitriy_gundon.on('hi', (peer) => { gun_connected_count++; gun_ever_connected = true; obnovit_status_soedineniya(); });
+            dmitriy_gundon.on('bye', (peer) => { gun_connected_count = Math.max(0, gun_connected_count - 1); obnovit_status_soedineniya(); });
+        } catch(e) { /* fallback */ }
+        
+        setTimeout(() => {
+            if (gun_connected_count === 0 && !gun_ever_connected) {
+                const dot = document.getElementById('conn_dot'); const txt = document.getElementById('conn_status_text');
+                if (dot && txt) {
+                    dot.className = 'conn_dot';
+                    txt.innerHTML = 'Не отвечают relay-серверы. Вход может не сработать. <span class="vxod_retry_link" id="conn_retry_link">Обновить страницу</span>';
+                    const link = document.getElementById('conn_retry_link');
+                    if (link) link.addEventListener('click', () => location.reload());
+                }
+            }
+        }, 7000);
 
         let danya_usera = null;
         try {
@@ -392,6 +565,21 @@
 
         // Переменные мессенджера
         let msg_current_friend = null, msg_editing_id = null, msg_dialogs = {}, msg_cache = {}, msg_pending_image = null;
+        let msg_last_preview = {}; 
+        let msg_unread = {}; 
+        let msg_typing_timeout_send = null, msg_typing_indicator_timeout = null;
+
+        // Переменные записи медиа (голос/видео) 
+        let media_recorder = null;
+        let media_recorder_chunks = [];
+        let media_recorder_kind = null; 
+        let media_recorder_target = null; 
+        let media_recorder_stream = null;
+        let media_recorder_timer = null;
+        let media_recorder_seconds = 0;
+        const VIDEO_KRUG_MAX_SEC = 15;
+        let msg_pending_voice = null, msg_pending_video = null;
+        let post_pending_voice = null, post_pending_video = null;
 
         // ============================================================
         // === ОБРАБОТЧИКИ СОБЫТИЙ ===
@@ -399,7 +587,6 @@
         document.addEventListener('DOMContentLoaded', () => {
             proverka_kenta();
             
-            // Вход и Регистрация
             document.getElementById('knopka_vxoda').addEventListener('click', () => attemptLogin(false));
             document.getElementById('knopka_regi').addEventListener('click', () => {
                 document.getElementById('captcha_block').classList.remove('skritiy_blok');
@@ -413,7 +600,6 @@
                 e.preventDefault(); kents_v_seti.leave(); localStorage.removeItem('vofshiy_yuzer'); location.reload(); 
             });
             
-            // Пост
             document.getElementById('otpravit_v_lentu').addEventListener('click', () => {
                 if (muted_users[danya_usera.name] && muted_users[danya_usera.name] > Date.now()) {
                     const ostalos = Math.ceil((muted_users[danya_usera.name] - Date.now()) / 60000);
@@ -421,14 +607,16 @@
                 }
                 const t = document.getElementById('tekst_novogo_posta').value.trim();
                 const fil = document.getElementById('gus_hrustalniy').files[0];
-                if (!t && !fil) return;
-                if (fil) szhat_kartinku(fil, 450, (kod) => sozdat_post_v_baze(t, kod)); else sozdat_post_v_baze(t, '');
+                if (!t && !fil && !post_pending_voice && !post_pending_video) return;
+                if (fil) szhat_kartinku(fil, 450, (kod) => sozdat_post_v_baze(t, kod));
+                else sozdat_post_v_baze(t, '');
             });
+
+            document.getElementById('post_rec_voice_btn').addEventListener('click', () => media_zapis_toggle('voice', 'post'));
+            document.getElementById('post_rec_video_btn').addEventListener('click', () => media_zapis_toggle('video', 'post'));
             
-            // Вкладки
             document.querySelectorAll('[data-tab]').forEach(el => el.addEventListener('click', () => pereklyuchit_vkladku(el.dataset.tab)));
             
-            // Делегирование
             document.addEventListener('click', (e) => {
                 const btn = e.target.closest('[data-action]');
                 if (!btn) return;
@@ -441,13 +629,11 @@
                 else if (action === 'delete-post') удалитьПост(btn.dataset.id);
                 else if (action === 'mod-mute') модерация_мут(btn.dataset.nick);
                 else if (action === 'mod-edit') модерация_редактировать(btn.dataset.id);
-                // Мессенджер делегирование
                 else if (action === 'open-dialog') msg_otkrit_dialog(btn.dataset.nick);
                 else if (action === 'edit-msg') msg_redaktirovat(btn.dataset.id);
                 else if (action === 'delete-msg') msg_udalit(btn.dataset.id);
             });
             
-            // Мессенджер
             document.getElementById('msg_nachat').addEventListener('click', msg_nachat_dialog);
             document.getElementById('msg_poslat').addEventListener('click', msg_otpravit);
             document.getElementById('msg_otmena').addEventListener('click', msg_otmena_redakt);
@@ -457,7 +643,8 @@
                 const file = e.target.files[0];
                 if (!file || !file.type.startsWith('image/')) return alert('Только картинки!');
                 szhat_kartinku(file, 600, (data) => {
-                    msg_pending_image = data; document.getElementById('msg_imya_fayla').innerText = '📷 ' + escapeHtml(file.name);
+                    msg_pending_image = data; msg_pending_voice = null; msg_pending_video = null;
+                    document.getElementById('msg_imya_fayla').innerText = '📷 ' + escapeHtml(file.name);
                 });
             });
             
@@ -467,36 +654,78 @@
             });
             
             document.getElementById('msg_vvod').addEventListener('keydown', (e) => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); msg_otpravit(); } });
+            document.getElementById('msg_vvod').addEventListener('input', msg_signal_typing);
             document.getElementById('msg_vvod_druga').addEventListener('keydown', (e) => { if (e.key === 'Enter') { e.preventDefault(); msg_nachat_dialog(); } });
             document.getElementById('modal_kartinki').addEventListener('click', zakrit_modal);
+
+            document.getElementById('msg_rec_voice_btn').addEventListener('click', () => media_zapis_toggle('voice', 'msg'));
+            document.getElementById('msg_rec_video_btn').addEventListener('click', () => media_zapis_toggle('video', 'msg'));
         });
 
         // ============================================================
         // === ЛОГИКА АВТОРИЗАЦИИ ===
         // ============================================================
+        let login_v_processe = false;
+
+        function set_vxod_busy(busy, label) {
+            const btnVxod = document.getElementById('knopka_vxoda');
+            const btnRegi = document.getElementById('knopka_regi');
+            const btnCaptcha = document.getElementById('captcha_verify');
+            login_v_processe = busy;
+            [btnVxod, btnRegi, btnCaptcha].forEach(b => { if (b) b.disabled = busy; });
+            if (busy && label) btnVxod.innerHTML = `<span class="vxod_spinner"></span>${escapeHtml(label)}`;
+            else if (!busy) btnVxod.innerHTML = 'Войти';
+        }
+
         function attemptLogin(isRegistration) {
+            if (login_v_processe) return;
             const st = document.getElementById('oshibka_vvoda');
             const u = document.getElementById('burmalda').value.trim();
             const p = document.getElementById('osika_v_teset').value.trim();
-            
+            st.innerText = '';
+
             if (!isValidNick(u)) return st.innerText = 'Логин: 2-30 символов, только латиница, цифры, _ и -';
             if (!p || p.length < 3) return st.innerText = 'Пароль должен быть минимум 3 символа';
-            
+
             if (isRegistration) {
                 if (!verifyCaptcha()) return;
-                st.innerText = '✓ Создаём аккаунт...';
+                set_vxod_busy(true, 'Создаём аккаунт...');
+
+                let zavershilos = false;
+                const timeoutId = setTimeout(() => {
+                    if (zavershilos) return;
+                    zavershilos = true; set_vxod_busy(false);
+                    st.innerHTML = 'Сервер долго не отвечает. Проверьте интернет и попробуйте снова. <span class="vxod_retry_link" id="retry_link_1">Повторить</span>';
+                    const rl = document.getElementById('retry_link_1'); if (rl) rl.addEventListener('click', () => attemptLogin(true));
+                }, 12000);
+
                 kents_v_seti.create(u, p, (ack) => {
-                    if (ack.err) { st.innerText = 'Ошибка: ' + escapeHtml(ack.err); generateCaptcha(); } 
-                    else {
+                    if (zavershilos) return; zavershilos = true; clearTimeout(timeoutId); set_vxod_busy(false);
+                    if (ack.err) {
+                        st.innerText = 'Ошибка: ' + escapeHtml(ack.err);
+                        generateCaptcha();
+                    } else {
                         profili_baza.get(u).put({ regTime: Date.now() });
                         st.innerText = '✓ Готово! Теперь нажмите "Войти".';
                         document.getElementById('captcha_block').classList.add('skritiy_blok');
                     }
                 });
             } else {
+                set_vxod_busy(true, 'Входим...');
+
+                let zavershilos = false;
+                const timeoutId = setTimeout(() => {
+                    if (zavershilos) return;
+                    zavershilos = true; set_vxod_busy(false);
+                    st.innerHTML = 'Не получилось войти за разумное время — relay-сервер не отвечает. <span class="vxod_retry_link" id="retry_link_2">Повторить попытку</span>';
+                    const rl = document.getElementById('retry_link_2'); if (rl) rl.addEventListener('click', () => attemptLogin(false));
+                }, 12000);
+
                 kents_v_seti.auth(u, p, (ack) => {
-                    if (ack.err) st.innerText = 'Ошибка входа: ' + escapeHtml(ack.err);
-                    else {
+                    if (zavershilos) return; zavershilos = true; clearTimeout(timeoutId); set_vxod_busy(false);
+                    if (ack.err) {
+                        st.innerText = 'Ошибка входа: ' + escapeHtml(ack.err);
+                    } else {
                         danya_usera = { name: u };
                         localStorage.setItem('vofshiy_yuzer', JSON.stringify(danya_usera));
                         proverka_kenta();
@@ -511,7 +740,6 @@
         function proverka_kenta() {
             if (danya_usera) { 
                 tekuschiy_prosmotr_юзера = danya_usera.name; pereklyuchit_ekran('glavniy_ekran'); init_paneli(); 
-                setTimeout(() => { if(kents_v_seti.is) console.log("%cТвой публичный ключ модератора (pub):", "color: red; font-size: 20px;", kents_v_seti.is.pub); }, 1000);
             } 
             else pereklyuchit_ekran('ekran_avtorizacii');
         }
@@ -591,9 +819,18 @@
 
         function sozdat_post_v_baze(text, imgData) {
             if (imgData && !isSafeImageUrl(imgData)) return alert('Небезопасный формат');
+            if (post_pending_voice && !isSafeAudioUrl(post_pending_voice)) return alert('Небезопасный формат аудио');
+            if (post_pending_video && !isSafeVideoUrl(post_pending_video)) return alert('Небезопасный формат видео');
             const p_id = 'post_' + Date.now() + '_' + Math.random().toString(36).substr(2, 6);
-            ambukoviy_graf.get(p_id).put({ id: p_id, author: danya_usera.name, text: String(text || '').slice(0, 280), img: imgData || '', mood: document.getElementById('vibor_statusa').value || '☕', time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }), timestamp: Date.now(), deleted: false });
+            ambukoviy_graf.get(p_id).put({
+                id: p_id, author: danya_usera.name, text: String(text || '').slice(0, 280), img: imgData || '',
+                voice: post_pending_voice || '', video: post_pending_video || '',
+                mood: document.getElementById('vibor_statusa').value || '☕',
+                time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }), timestamp: Date.now(), deleted: false
+            });
             document.getElementById('tekst_novogo_posta').value = ''; document.getElementById('gus_hrustalniy').value = '';
+            post_pending_voice = null; post_pending_video = null;
+            const info = document.getElementById('post_pending_media_info'); if (info) { info.classList.add('skritiy_blok'); info.innerText = ''; }
         }
 
         function удалитьПост(p_id) { if(confirm('Удалить навсегда?')) ambukoviy_graf.get(p_id).get('deleted').put(true); }
@@ -609,6 +846,27 @@
             profili_baza.get(danya_usera.name).get('msgNick').put(nick); alert('Связано!');
         }
         
+        // ВАЖНО: Оптимизировано сжатие картинок для мобильных браузеров (чтобы не падало от утечек памяти)
+        function szhat_kartinku(file, max_size, callback) {
+            const chitalka = new FileReader();
+            chitalka.onloadend = () => {
+                const canvas = document.createElement('canvas'); const ctx = canvas.getContext('2d'); const img = new Image();
+                img.onload = () => {
+                    let w = img.width, h = img.height;
+                    if (w > max_size || h > max_size) { if (w > h) { h = Math.round((h * max_size) / w); w = max_size; } else { w = Math.round((w * max_size) / h); h = max_size; } }
+                    canvas.width = w; canvas.height = h; ctx.drawImage(img, 0, 0, w, h);
+                    const result = canvas.toDataURL('image/jpeg', 0.6);
+                    
+                    // Очищаем canvas из памяти
+                    canvas.width = 0; canvas.height = 0;
+                    
+                    if (isSafeImageUrl(result)) callback(result); else alert('Ошибка обработки');
+                };
+                img.onerror = () => alert('Не удалось загрузить картинку'); img.src = chitalka.result;
+            };
+            chitalka.readAsDataURL(file);
+        }
+
         function izmenit_avatar(file) { szhat_kartinku(file, 150, (kod) => { if(isSafeImageUrl(kod)) profili_baza.get(danya_usera.name).get('avatar').put(kod); }); }
 
         function rasschitat_vremya_saita(timestamp) {
@@ -658,6 +916,8 @@
             const isEditedByMod = edited_posts[post.id] && edited_posts[post.id].editedByMod;
             const postText = isEditedByMod ? edited_posts[post.id].text : post.text;
             const postImg = isEditedByMod ? null : post.img;
+            const postVoice = isEditedByMod ? null : post.voice;
+            const postVideo = isEditedByMod ? null : post.video;
 
             const p_data = globalnie_profili[post.author];
             const avaHTML = p_data && p_data.avatar && isSafeImageUrl(p_data.avatar) ? `<img src="${p_data.avatar}" class="mini_ava">` : `<div class="mini_ava" style="display:flex;align-items:center;justify-content:center;">👤</div>`;
@@ -671,29 +931,255 @@
             if (post.author === danya_usera.name) html += `<button class="knopka_del_posta" data-action="delete-post" data-id="${post.id}">× Удалить</button>`;
             if (isModerator()) html += `<button class="knopka_mod_posta" data-action="mod-mute" data-nick="${post.author}">[Мут 5м]</button> <button class="knopka_mod_posta" data-action="mod-edit" data-id="${post.id}">[Изменить]</button>`;
             
-            html += `</div></div>`; el.innerHTML = html; return el;
-        }
+            html += `</div></div>`; el.innerHTML = html;
 
-        function szhat_kartinku(file, max_size, callback) {
-            const chitalka = new FileReader();
-            chitalka.onloadend = () => {
-                const canvas = document.createElement('canvas'); const ctx = canvas.getContext('2d'); const img = new Image();
-                img.onload = () => {
-                    let w = img.width, h = img.height;
-                    if (w > max_size || h > max_size) { if (w > h) { h = Math.round((h * max_size) / w); w = max_size; } else { w = Math.round((w * max_size) / h); h = max_size; } }
-                    canvas.width = w; canvas.height = h; ctx.drawImage(img, 0, 0, w, h);
-                    const result = canvas.toDataURL('image/jpeg', 0.6);
-                    if (isSafeImageUrl(result)) callback(result); else alert('Ошибка обработки');
-                };
-                img.onerror = () => alert('Не удалось загрузить картинку'); img.src = chitalka.result;
-            };
-            chitalka.readAsDataURL(file);
+            const pravayaChast = el.querySelector('.pravaya_chast_posta');
+            const laykiBlok = el.querySelector('.line_laykov');
+            if (postVoice && isSafeAudioUrl(postVoice) && pravayaChast && laykiBlok) {
+                pravayaChast.insertBefore(sozdat_golos_player(postVoice), laykiBlok);
+            }
+            if (postVideo && isSafeVideoUrl(postVideo) && pravayaChast && laykiBlok) {
+                pravayaChast.insertBefore(sozdat_video_kruzhok(postVideo), laykiBlok);
+            }
+            return el;
         }
 
         function zakrit_modal() { document.getElementById('modal_kartinki').classList.add('skritiy_blok'); document.getElementById('modal_img').src = ''; }
 
         // ============================================================
-        // === МЕССЕНДЖЕР (ИЗ ОРИГИНАЛА) ===
+        // === ГОЛОСОВЫЕ И ВИДЕО-СООБЩЕНИЯ (MediaRecorder) ===
+        // ============================================================
+        function formatirovat_sek(totalSec) {
+            const m = Math.floor(totalSec / 60), s = Math.floor(totalSec % 60);
+            return m + ':' + String(s).padStart(2, '0');
+        }
+
+        function vybrat_mime_tip(kind) {
+            const candidates = kind === 'video'
+                ? ['video/webm;codecs=vp8,opus', 'video/webm', 'video/mp4']
+                : ['audio/webm;codecs=opus', 'audio/webm', 'audio/ogg;codecs=opus', 'audio/mp4'];
+            for (const c of candidates) { if (window.MediaRecorder && MediaRecorder.isTypeSupported && MediaRecorder.isTypeSupported(c)) return c; }
+            return '';
+        }
+
+        function media_zapis_panel_el(target) {
+            return document.getElementById(target === 'post' ? 'post_zapis_panel' : 'msg_zapis_panel');
+        }
+
+        async function media_zapis_toggle(kind, target) {
+            if (media_recorder && media_recorder.state === 'recording') {
+                if (media_recorder_kind === kind && media_recorder_target === target) {
+                    media_zapis_stop();
+                    return;
+                }
+                media_zapis_otmena();
+            }
+            if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+                return alert('Ваш браузер не поддерживает запись медиа. Попробуйте обновить браузер или использовать HTTPS.');
+            }
+            try {
+                const constraints = kind === 'video' ? { video: { facingMode: 'user', width: 480, height: 480 }, audio: true } : { audio: true };
+                const stream = await navigator.mediaDevices.getUserMedia(constraints);
+                media_recorder_stream = stream;
+                media_recorder_kind = kind; media_recorder_target = target; media_recorder_chunks = [];
+                const mime = vybrat_mime_tip(kind);
+                media_recorder = mime ? new MediaRecorder(stream, { mimeType: mime }) : new MediaRecorder(stream);
+
+                media_recorder.ondataavailable = (e) => { if (e.data && e.data.size > 0) media_recorder_chunks.push(e.data); };
+                media_recorder.onstop = () => media_zapis_obrabotat_rezultat();
+                media_recorder.onerror = (e) => {
+                    media_zapis_ochistka();
+                    media_zapis_ostanovit_potok();
+                    const panel = media_zapis_panel_el(media_recorder_target); if (panel) { panel.classList.add('skritiy_blok'); panel.innerHTML = ''; }
+                    media_recorder = null; media_recorder_chunks = [];
+                    alert('Запись прервалась из-за ошибки устройства (камера/микрофон). Попробуйте снова.');
+                };
+                media_recorder.start();
+                media_recorder_seconds = 0;
+                media_zapis_risovat_panel(target, kind, stream);
+
+                media_recorder_timer = setInterval(() => {
+                    media_recorder_seconds++;
+                    const taimerEl = document.getElementById('zapis_taimer_' + target);
+                    if (taimerEl) taimerEl.textContent = formatirovat_sek(media_recorder_seconds);
+                    if (kind === 'video' && media_recorder_seconds >= VIDEO_KRUG_MAX_SEC) media_zapis_stop();
+                }, 1000);
+            } catch (err) {
+                alert('Не удалось получить доступ к ' + (kind === 'video' ? 'камере/микрофону' : 'микрофону') + '. Проверьте разрешения браузера.');
+            }
+        }
+
+        function media_zapis_risovat_panel(target, kind, stream) {
+            const panel = media_zapis_panel_el(target);
+            if (!panel) return;
+            panel.classList.remove('skritiy_blok');
+            panel.innerHTML = '';
+            const wrap = document.createElement('div'); wrap.className = 'zapis_overlay_panel';
+
+            if (kind === 'video') {
+                const vid = document.createElement('video'); vid.className = 'video_preview_zapisi';
+                vid.autoplay = true; vid.muted = true; vid.playsInline = true; vid.srcObject = stream;
+                wrap.appendChild(vid);
+            }
+            const dot = document.createElement('span'); dot.className = 'zapis_rec_dot'; wrap.appendChild(dot);
+            const label = document.createElement('span'); label.textContent = kind === 'video' ? 'Запись видео-кружка' : 'Запись голосового'; wrap.appendChild(label);
+            const taimer = document.createElement('span'); taimer.className = 'zapis_taimer'; taimer.id = 'zapis_taimer_' + target; taimer.textContent = '0:00'; wrap.appendChild(taimer);
+            if (kind === 'video') { const lim = document.createElement('span'); lim.style.fontSize = '10px'; lim.style.color = '#888'; lim.textContent = `(макс. ${VIDEO_KRUG_MAX_SEC}с)`; wrap.appendChild(lim); }
+
+            const cancelBtn = document.createElement('button'); cancelBtn.className = 'zapis_cancel_btn'; cancelBtn.textContent = 'Отмена';
+            cancelBtn.addEventListener('click', () => media_zapis_otmena());
+            const stopBtn = document.createElement('button'); stopBtn.className = 'zapis_stop_btn'; stopBtn.textContent = '⏹ Стоп';
+            stopBtn.addEventListener('click', () => media_zapis_stop());
+
+            wrap.appendChild(cancelBtn); wrap.appendChild(stopBtn);
+            panel.appendChild(wrap);
+
+            const btnId = target === 'post'
+                ? (kind === 'video' ? 'post_rec_video_btn' : 'post_rec_voice_btn')
+                : (kind === 'video' ? 'msg_rec_video_btn' : 'msg_rec_voice_btn');
+            const btn = document.getElementById(btnId); if (btn) btn.classList.add('rec_active');
+        }
+
+        function media_zapis_ochistka() {
+            if (media_recorder_timer) { clearInterval(media_recorder_timer); media_recorder_timer = null; }
+            ['post_rec_voice_btn', 'post_rec_video_btn', 'msg_rec_voice_btn', 'msg_rec_video_btn'].forEach(id => {
+                const b = document.getElementById(id); if (b) b.classList.remove('rec_active');
+            });
+        }
+
+        function media_zapis_ostanovit_potok() {
+            if (media_recorder_stream) { media_recorder_stream.getTracks().forEach(t => t.stop()); media_recorder_stream = null; }
+        }
+
+        function media_zapis_otmena() {
+            const target = media_recorder_target;
+            if (media_recorder && media_recorder.state !== 'inactive') {
+                media_recorder.onstop = null; 
+                try { media_recorder.stop(); } catch(e) {}
+            }
+            media_zapis_ochistka();
+            media_zapis_ostanovit_potok(); 
+            media_recorder = null; media_recorder_chunks = [];
+            const panel = media_zapis_panel_el(target); if (panel) { panel.classList.add('skritiy_blok'); panel.innerHTML = ''; }
+        }
+
+        // ВАЖНО: Патч для безопасной остановки MediaRecorder на мобильных устройствах
+        function media_zapis_stop() {
+            media_zapis_ochistka();
+            if (media_recorder && media_recorder.state === 'recording') {
+                try { 
+                    if (media_recorder.requestData) media_recorder.requestData(); // Форсируем сброс буфера перед остановкой
+                    media_recorder.stop(); 
+                } catch(e) { 
+                    media_zapis_ostanovit_potok(); media_recorder = null; 
+                }
+            } else {
+                media_zapis_ostanovit_potok();
+            }
+        }
+
+        function media_zapis_obrabotat_rezultat() {
+            const target = media_recorder_target, kind = media_recorder_kind;
+            media_zapis_ostanovit_potok(); 
+            const panel = media_zapis_panel_el(target); if (panel) { panel.classList.add('skritiy_blok'); panel.innerHTML = ''; }
+            if (!media_recorder_chunks.length) { media_recorder = null; return; }
+
+            const rawMime = (media_recorder && media_recorder.mimeType) || (kind === 'video' ? 'video/webm' : 'audio/webm');
+            const mimeType = rawMime.split(';')[0]; 
+            const blob = new Blob(media_recorder_chunks, { type: mimeType });
+            media_recorder_chunks = []; media_recorder = null;
+
+            const maxBytes = kind === 'video' ? 3.5 * 1024 * 1024 : 1.5 * 1024 * 1024;
+            if (blob.size > maxBytes) {
+                alert('Запись получилась слишком длинной/большой для p2p-сети. Попробуйте короче.');
+                return;
+            }
+
+            const reader = new FileReader();
+            reader.onloadend = () => {
+                const dataUrl = reader.result;
+                if (kind === 'voice') {
+                    if (!isSafeAudioUrl(dataUrl)) return alert('Ошибка обработки голосового');
+                    if (target === 'post') {
+                        post_pending_voice = dataUrl; post_pending_video = null;
+                        const info = document.getElementById('post_pending_media_info');
+                        if (info) { info.classList.remove('skritiy_blok'); info.innerHTML = '🎤 Голосовое готово к публикации <span class="post_pending_media_clear" id="post_clear_media">[убрать]</span>'; document.getElementById('post_clear_media').addEventListener('click', post_ochistit_pending_media); }
+                    } else {
+                        msg_pending_voice = dataUrl; msg_pending_video = null;
+                        document.getElementById('msg_imya_fayla').innerText = '🎤 Голосовое готово к отправке';
+                    }
+                } else {
+                    if (!isSafeVideoUrl(dataUrl)) return alert('Ошибка обработки видео');
+                    if (target === 'post') {
+                        post_pending_video = dataUrl; post_pending_voice = null;
+                        const info = document.getElementById('post_pending_media_info');
+                        if (info) { info.classList.remove('skritiy_blok'); info.innerHTML = '🎥 Видео-кружок готов к публикации <span class="post_pending_media_clear" id="post_clear_media">[убрать]</span>'; document.getElementById('post_clear_media').addEventListener('click', post_ochistit_pending_media); }
+                    } else {
+                        msg_pending_video = dataUrl; msg_pending_voice = null;
+                        document.getElementById('msg_imya_fayla').innerText = '🎥 Видео-кружок готов к отправке';
+                    }
+                }
+            };
+            reader.readAsDataURL(blob);
+        }
+
+        function post_ochistit_pending_media() {
+            post_pending_voice = null; post_pending_video = null;
+            const info = document.getElementById('post_pending_media_info'); if (info) { info.classList.add('skritiy_blok'); info.innerHTML = ''; }
+        }
+
+        // --- Создание плеера голосового сообщения ---
+        let golos_player_seq = 0;
+        function sozdat_golos_player(dataUrl) {
+            const id = 'audio_' + (++golos_player_seq) + '_' + Date.now();
+            const wrap = document.createElement('div'); wrap.className = 'golos_player';
+
+            const audio = document.createElement('audio'); audio.src = dataUrl; audio.preload = 'metadata'; audio.style.display = 'none'; audio.id = id;
+            const playBtn = document.createElement('button'); playBtn.className = 'golos_play_btn'; playBtn.type = 'button'; playBtn.textContent = '▶';
+            const progressWrap = document.createElement('div'); progressWrap.className = 'golos_progress_wrap';
+            const progressBar = document.createElement('div'); progressBar.className = 'golos_progress_bar';
+            const progressFill = document.createElement('div'); progressFill.className = 'golos_progress_fill';
+            const vremya = document.createElement('div'); vremya.className = 'golos_vremya'; vremya.textContent = '0:00';
+            progressBar.appendChild(progressFill); progressWrap.appendChild(progressBar); progressWrap.appendChild(vremya);
+
+            playBtn.addEventListener('click', () => {
+                document.querySelectorAll('audio').forEach(a => { if (a !== audio && !a.paused) a.pause(); });
+                if (audio.paused) { audio.play(); playBtn.textContent = '⏸'; } else { audio.pause(); playBtn.textContent = '▶'; }
+            });
+            audio.addEventListener('timeupdate', () => {
+                if (audio.duration) progressFill.style.width = (audio.currentTime / audio.duration * 100) + '%';
+                vremya.textContent = formatirovat_sek(audio.currentTime);
+            });
+            audio.addEventListener('loadedmetadata', () => { if (isFinite(audio.duration)) vremya.textContent = formatirovat_sek(audio.duration); });
+            audio.addEventListener('ended', () => { playBtn.textContent = '▶'; progressFill.style.width = '0%'; vremya.textContent = isFinite(audio.duration) ? formatirovat_sek(audio.duration) : '0:00'; });
+            audio.addEventListener('pause', () => { playBtn.textContent = '▶'; });
+            progressBar.addEventListener('click', (e) => {
+                if (!audio.duration) return;
+                const rect = progressBar.getBoundingClientRect();
+                audio.currentTime = ((e.clientX - rect.left) / rect.width) * audio.duration;
+            });
+
+            wrap.appendChild(audio); wrap.appendChild(playBtn); wrap.appendChild(progressWrap);
+            return wrap;
+        }
+
+        // --- Создание видео-кружочка ---
+        function sozdat_video_kruzhok(dataUrl) {
+            const wrap = document.createElement('div'); wrap.className = 'video_kruzhok_wrap';
+            const video = document.createElement('video'); video.src = dataUrl; video.loop = true; video.playsInline = true; video.preload = 'metadata';
+            const overlay = document.createElement('div'); overlay.className = 'video_kruzhok_play_overlay'; overlay.textContent = '▶';
+
+            wrap.appendChild(video); wrap.appendChild(overlay);
+            wrap.addEventListener('click', () => {
+                document.querySelectorAll('.video_kruzhok_wrap video').forEach(v => { if (v !== video) { v.pause(); v.closest('.video_kruzhok_wrap').classList.remove('playing'); } });
+                if (video.paused) { video.play(); wrap.classList.add('playing'); } else { video.pause(); wrap.classList.remove('playing'); }
+            });
+            video.addEventListener('pause', () => wrap.classList.remove('playing'));
+            return wrap;
+        }
+
+        // ============================================================
+        // === МЕССЕНДЖЕР (ОБНОВЛЁННЫЙ ИНТЕРФЕЙС) ===
         // ============================================================
         let msg_inited = false;
         function msg_inicializirovat() {
@@ -701,22 +1187,62 @@
             msg_chats_db.get(danya_usera.name).map().on((val, key) => {
                 if (!key || key === '_') return;
                 let time = typeof val === 'number' ? val : (val && (val.time || val.timestamp)) ? (val.time || val.timestamp) : 0;
-                if (time > 0) { msg_dialogs[key] = time; msg_risovat_spisok(); }
+                if (time > 0) { msg_dialogs[key] = time; msg_podgruzit_preview(key); msg_risovat_spisok(); }
             });
+        }
+
+        let msg_preview_inited = {};
+        function msg_podgruzit_preview(friend) {
+            if (msg_preview_inited[friend]) return; msg_preview_inited[friend] = true;
+            const chatKey = msg_poluchit_klyuch(danya_usera.name, friend);
+            msg_messages_db.get(chatKey).map().on((data, msgId) => {
+                if (!msgId || msgId === '_' || !data) return;
+                const existing = msg_last_preview[friend];
+                if (!existing || (data.timestamp || 0) >= (existing.timestamp || 0)) {
+                    let previewText = data.deleted ? '🗑 сообщение удалено' : (data.video ? '🎥 видео-кружок' : (data.voice ? '🎤 голосовое' : (data.img ? '📷 фото' : (data.text || ''))));
+                    msg_last_preview[friend] = { text: previewText, timestamp: data.timestamp || 0, from: data.from };
+                    if (data.from !== danya_usera.name && msg_current_friend !== friend) {
+                        msg_unread[friend] = (msg_unread[friend] || 0) + 1;
+                    }
+                    msg_risovat_spisok();
+                }
+            });
+        }
+
+        function msg_avatar_html_for(nick) {
+            const p_data = globalnie_profili[nick];
+            if (p_data && p_data.avatar && isSafeImageUrl(p_data.avatar)) return `<img src="${p_data.avatar}" alt="">`;
+            return '👤';
         }
 
         function msg_risovat_spisok() {
             const cont = document.getElementById('msg_spisok');
             const friends = Object.keys(msg_dialogs).sort((a, b) => (msg_dialogs[b] || 0) - (msg_dialogs[a] || 0));
             cont.innerHTML = '';
-            if (friends.length === 0) return cont.innerHTML = '<div class="msg_net">Нет диалогов</div>';
+            if (friends.length === 0) return cont.innerHTML = '<div class="msg_net">Нет диалогов. Начните новый выше 👆</div>';
             
             const frag = document.createDocumentFragment();
             friends.forEach(friend => {
                 const el = document.createElement('div'); el.className = 'msg_dialog_el' + (msg_current_friend === friend ? ' aktivniy' : '');
+
+                const avaDiv = document.createElement('div'); avaDiv.className = 'msg_dialog_ava'; avaDiv.innerHTML = msg_avatar_html_for(friend);
+
+                const glavnoe = document.createElement('div'); glavnoe.className = 'msg_dialog_glavnoe';
+                const stroka1 = document.createElement('div'); stroka1.className = 'msg_dialog_stroka1';
                 const nameDiv = document.createElement('div'); nameDiv.className = 'msg_imya'; nameDiv.textContent = friend;
                 const timeDiv = document.createElement('div'); timeDiv.className = 'msg_vremya'; timeDiv.textContent = msg_dialogs[friend] ? new Date(msg_dialogs[friend]).toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'}) : '';
-                el.appendChild(nameDiv); el.appendChild(timeDiv); el.addEventListener('click', () => msg_otkrit_dialog(friend));
+                stroka1.appendChild(nameDiv); stroka1.appendChild(timeDiv);
+
+                const stroka2 = document.createElement('div'); stroka2.className = 'msg_dialog_stroka1';
+                const previewDiv = document.createElement('div'); previewDiv.className = 'msg_dialog_preview';
+                const prev = msg_last_preview[friend];
+                previewDiv.textContent = prev ? (prev.from === danya_usera.name ? 'Вы: ' : '') + prev.text : 'Нет сообщений';
+                stroka2.appendChild(previewDiv);
+                if (msg_unread[friend] > 0) { const unreadSpan = document.createElement('span'); unreadSpan.className = 'msg_dialog_unread'; unreadSpan.textContent = msg_unread[friend]; stroka2.appendChild(unreadSpan); }
+
+                glavnoe.appendChild(stroka1); glavnoe.appendChild(stroka2);
+                el.appendChild(avaDiv); el.appendChild(glavnoe);
+                el.addEventListener('click', () => msg_otkrit_dialog(friend));
                 frag.appendChild(el);
             });
             cont.appendChild(frag);
@@ -734,15 +1260,20 @@
 
         function msg_otkrit_dialog(friend) {
             if (!isValidNick(friend)) return;
-            msg_current_friend = friend; msg_editing_id = null; msg_otmena_redakt(); msg_pending_image = null;
+            media_zapis_otmena();
+            msg_current_friend = friend; msg_editing_id = null; msg_otmena_redakt(); msg_pending_image = null; msg_pending_voice = null; msg_pending_video = null;
+            msg_unread[friend] = 0;
             document.getElementById('msg_imya_fayla').innerText = ''; document.getElementById('msg_file').value = '';
             document.getElementById('msg_sobesednik').textContent = friend;
+            document.getElementById('msg_zagolovok_ava').innerHTML = msg_avatar_html_for(friend);
             document.getElementById('msg_chat_area').className = 'msg_chat_area'; document.getElementById('msg_sidebar').className = 'msg_sidebar skritiy';
             msg_cache = {}; document.getElementById('msg_okno').innerHTML = '<div class="msg_net">Загрузка...</div>';
-            msg_slushat_soobsheniya(); msg_risovat_spisok();
+            msg_slushat_soobsheniya(); msg_slushat_typing(); msg_risovat_spisok();
         }
 
-        function msg_k_chatam() { msg_current_friend = null; document.getElementById('msg_chat_area').className = 'msg_chat_area skritiy'; document.getElementById('msg_sidebar').className = 'msg_sidebar'; }
+        function msg_k_chatam() {
+            msg_current_friend = null; document.getElementById('msg_chat_area').className = 'msg_chat_area skritiy'; document.getElementById('msg_sidebar').className = 'msg_sidebar';
+        }
         function msg_poluchit_klyuch(n1, n2) { return [n1, n2].sort().join('___'); }
 
         function msg_slushat_soobsheniya() {
@@ -754,6 +1285,32 @@
                 else if (data.deleted) msg_cache[msgId] = { id: msgId, deleted: true, timestamp: data.timestamp || 0 };
                 else msg_cache[msgId] = { ...data, id: msgId };
                 msg_risovat_soobsheniya();
+            });
+        }
+
+        function msg_signal_typing() {
+            if (!msg_current_friend) return;
+            const key = msg_poluchit_klyuch(danya_usera.name, msg_current_friend);
+            msg_typing_db.get(key).get(danya_usera.name).put(Date.now());
+            if (msg_typing_timeout_send) clearTimeout(msg_typing_timeout_send);
+            msg_typing_timeout_send = setTimeout(() => { msg_typing_db.get(key).get(danya_usera.name).put(0); }, 2500);
+        }
+
+        function msg_slushat_typing() {
+            if (!msg_current_friend) return;
+            const key = msg_poluchit_klyuch(danya_usera.name, msg_current_friend);
+            const friendImya = msg_current_friend;
+            msg_typing_db.get(key).get(friendImya).on((ts) => {
+                if (msg_current_friend !== friendImya) return; 
+                const indikator = document.getElementById('msg_pechataet_indikator');
+                if (!indikator) return;
+                if (ts && (Date.now() - ts) < 3000) {
+                    indikator.classList.remove('skritiy_blok');
+                    if (msg_typing_indicator_timeout) clearTimeout(msg_typing_indicator_timeout);
+                    msg_typing_indicator_timeout = setTimeout(() => indikator.classList.add('skritiy_blok'), 3000);
+                } else {
+                    indikator.classList.add('skritiy_blok');
+                }
             });
         }
 
@@ -769,18 +1326,22 @@
                 if (msg.deleted) { el.className = 'msg_balun udaleno'; el.textContent = '🗑 Сообщение удалено'; frag.appendChild(el); return; }
                 const moi = msg.from === danya_usera.name; el.className = 'msg_balun ' + (moi ? 'moi' : 'chuzhoi');
                 
-                const textDiv = document.createElement('div'); textDiv.textContent = msg.text || ''; el.appendChild(textDiv);
+                if (msg.text) { const textDiv = document.createElement('div'); textDiv.textContent = msg.text; el.appendChild(textDiv); }
                 if (msg.img && isSafeImageUrl(msg.img)) {
                     const img = document.createElement('img'); img.src = msg.img; img.className = 'msg_kartinka_balun';
                     img.addEventListener('click', () => { document.getElementById('modal_img').src=msg.img; document.getElementById('modal_kartinki').classList.remove('skritiy_blok');});
                     el.appendChild(img);
                 }
+                if (msg.voice && isSafeAudioUrl(msg.voice)) el.appendChild(sozdat_golos_player(msg.voice));
+                if (msg.video && isSafeVideoUrl(msg.video)) el.appendChild(sozdat_video_kruzhok(msg.video));
                 
                 const footer = document.createElement('div');
                 const timeSpan = document.createElement('span'); timeSpan.className = 'msg_vremya_soob'; timeSpan.textContent = msg.time || ''; footer.appendChild(timeSpan);
                 if (msg.edited) { const redSpan = document.createElement('span'); redSpan.className = 'msg_metka_red'; redSpan.textContent = ' (ред.)'; footer.appendChild(redSpan); }
                 if (moi) {
-                    const editBtn = document.createElement('button'); editBtn.className = 'msg_knopka_act redakt'; editBtn.textContent = '✎ изм.'; editBtn.dataset.action="edit-msg"; editBtn.dataset.id=msg.id; footer.appendChild(editBtn);
+                    if (!msg.voice && !msg.video) { 
+                        const editBtn = document.createElement('button'); editBtn.className = 'msg_knopka_act redakt'; editBtn.textContent = '✎ изм.'; editBtn.dataset.action="edit-msg"; editBtn.dataset.id=msg.id; footer.appendChild(editBtn);
+                    }
                     const delBtn = document.createElement('button'); delBtn.className = 'msg_knopka_act udalit'; delBtn.textContent = '🗑 удл.'; delBtn.dataset.action="delete-msg"; delBtn.dataset.id=msg.id; footer.appendChild(delBtn);
                 }
                 el.appendChild(footer); frag.appendChild(el);
@@ -790,7 +1351,12 @@
 
         function msg_otpravit() {
             const input = document.getElementById('msg_vvod'); const text = input.value.trim();
-            if ((!text && !msg_pending_image) || !msg_current_friend) return;
+            if ((!text && !msg_pending_image && !msg_pending_voice && !msg_pending_video) || !msg_current_friend) return;
+            
+            // ВАЖНО: Очищаем инпут мгновенно, чтобы создать ощущение моментального отклика
+            input.value = ''; 
+            input.focus();
+            
             const chatKey = msg_poluchit_klyuch(danya_usera.name, msg_current_friend);
             const time = new Date().toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'}); const timestamp = Date.now();
 
@@ -800,12 +1366,19 @@
                 msg_otmena_redakt();
             } else {
                 const msgId = 'msg_' + timestamp + '_' + Math.random().toString(36).substr(2, 6);
-                if (msg_pending_image && !isSafeImageUrl(msg_pending_image)) return alert('Ошибка безопасности');
-                msg_messages_db.get(chatKey).get(msgId).put({ id: msgId, from: danya_usera.name, text: String(text || '').slice(0, 1000), img: msg_pending_image || '', time: time, timestamp: timestamp, edited: false, deleted: false });
+                if (msg_pending_image && !isSafeImageUrl(msg_pending_image)) return alert('Ошибка безопасности (фото)');
+                if (msg_pending_voice && !isSafeAudioUrl(msg_pending_voice)) return alert('Ошибка безопасности (голосовое)');
+                if (msg_pending_video && !isSafeVideoUrl(msg_pending_video)) return alert('Ошибка безопасности (видео)');
+                msg_messages_db.get(chatKey).get(msgId).put({
+                    id: msgId, from: danya_usera.name, text: String(text || '').slice(0, 1000),
+                    img: msg_pending_image || '', voice: msg_pending_voice || '', video: msg_pending_video || '',
+                    time: time, timestamp: timestamp, edited: false, deleted: false
+                });
                 msg_chats_db.get(danya_usera.name).get(msg_current_friend).put(timestamp); msg_chats_db.get(msg_current_friend).get(danya_usera.name).put(timestamp);
-                msg_pending_image = null; document.getElementById('msg_imya_fayla').innerText = ''; document.getElementById('msg_file').value = '';
+                msg_pending_image = null; msg_pending_voice = null; msg_pending_video = null;
+                document.getElementById('msg_imya_fayla').innerText = ''; document.getElementById('msg_file').value = '';
             }
-            input.value = ''; input.focus();
+            msg_typing_db.get(chatKey).get(danya_usera.name).put(0);
         }
 
         function msg_redaktirovat(msgId) {
@@ -819,7 +1392,7 @@
             if (!isValidId(msgId)) return; const msg = msg_cache[msgId];
             if (!msg || msg.from !== danya_usera.name) return;
             if (!confirm('Удалить это сообщение?')) return;
-            msg_messages_db.get(msg_poluchit_klyuch(danya_usera.name, msg_current_friend)).get(msgId).put({ id: msgId, from: msg.from, text: '', img: '', time: msg.time, timestamp: msg.timestamp, deleted: true, deletedAt: Date.now() });
+            msg_messages_db.get(msg_poluchit_klyuch(danya_usera.name, msg_current_friend)).get(msgId).put({ id: msgId, from: msg.from, text: '', img: '', voice: '', video: '', time: msg.time, timestamp: msg.timestamp, deleted: true, deletedAt: Date.now() });
         }
 
         function msg_otmena_redakt() {
