@@ -8,103 +8,245 @@
     <script src="https://cdn.jsdelivr.net/npm/gun/gun.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/gun/sea.js"></script>
     <style>
-        body { background-color: #f7f7f7; color: #1c1e21; font-family: Tahoma, Arial, sans-serif; font-size: 12px; margin: 0; padding: 0; }
-        .verh_panel { background-color: #3b5998; border-bottom: 1px solid #29487d; color: #ffffff; padding: 12px 0; position: sticky; top: 0; z-index: 100; }
-        .shirina_polosa { max-width: 900px; margin: 0 auto; padding: 0 10px; display: flex; justify-content: space-between; align-items: center; }
-        .logotip_seti { font-size: 20px; font-weight: bold; letter-spacing: -1px; display: flex; align-items: center; gap: 15px;}
-        .stats_badge { font-size: 11px; background: rgba(255,255,255,0.2); padding: 3px 8px; border-radius: 10px; font-weight: normal; }
-        .osnovnoy_bazar { max-width: 900px; margin: 10px auto; padding: 0 8px; box-sizing: border-box; }
-        .nav_vkladki { display: flex; border-bottom: 1px solid #bdc7d8; margin-bottom: 12px; background: #eceff5; flex-wrap: wrap; }
-        .vkladka_knopka { padding: 10px 14px; color: #3b5998; text-decoration: none; font-weight: bold; cursor: pointer; flex: 1; text-align: center; font-size: 12px; min-width: 80px; }
-        .vkladka_knopka.aktivnaya_vkladka { background-color: #ffffff; border: 1px solid #bdc7d8; border-bottom: 1px solid #ffffff; color: #000000; }
-        .belaya_korobka { background-color: #ffffff; border: 1px solid #bdc7d8; padding: 10px; margin-bottom: 12px; }
-        .zagolovok_korobki { background-color: #eceff5; border: 1px solid #d8dfea; color: #3b5998; font-weight: bold; padding: 6px; margin-bottom: 10px; font-size: 12px; }
-        .tekstovoe_pole { border: 1px solid #bdc7d8; font-family: Arial; font-size: 13px; padding: 6px; width: 100%; box-sizing: border-box; margin-bottom: 8px; }
-        .knopka_sinyaya { background-color: #5b74a8; border: 1px solid #29447e; color: #ffffff; font-weight: bold; padding: 6px 14px; cursor: pointer; font-size: 12px; }
-        .knopka_seraya { background-color: #f2f2f2; border: 1px solid #999; color: #333; font-weight: bold; padding: 6px 14px; cursor: pointer; font-size: 12px; }
-        
-        .kartochка_posta { border-bottom: 1px dotted #bdc7d8; padding: 12px 0; display: flex; gap: 10px; position: relative; }
-        .mini_ava { width: 36px; height: 36px; border-radius: 50%; object-fit: cover; background: #e1e1e1; flex-shrink: 0; }
+        /* ============================================================
+           ВСети.ру — глянцевый Web 2.0 (стиль стартапов нулевых:
+           градиенты, верхние блики на кнопках, мягкие тени, скруглённые
+           углы). Все имена классов сохранены — меняется только внешний
+           вид, логика и структура HTML/JS не затронуты.
+           ============================================================ */
+
+        body { background: #eef3f8 linear-gradient(180deg, #eef3f8 0%, #dde7f0 480px, #dde7f0 100%) no-repeat; color: #2c3e50; font-family: "Helvetica Neue", Helvetica, Arial, sans-serif; font-size: 13px; margin: 0; padding: 0; }
+
+        .verh_panel {
+            background: linear-gradient(180deg, #6fa8e0 0%, #4a86c5 8%, #3972ad 50%, #2f5f95 92%, #2a548a 100%);
+            border-bottom: 1px solid #1f3f6e;
+            box-shadow: 0 1px 0 rgba(255,255,255,0.35) inset, 0 3px 6px rgba(0,0,0,0.25);
+            color: #ffffff;
+            padding: 14px 0;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+        .shirina_polosa { max-width: 920px; margin: 0 auto; padding: 0 14px; display: flex; justify-content: space-between; align-items: center; }
+        .logotip_seti {
+            font-size: 23px;
+            font-weight: bold;
+            letter-spacing: -0.5px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            text-shadow: 0 1px 0 rgba(0,0,0,0.25), 0 -1px 0 rgba(255,255,255,0.15);
+            color: #ffffff;
+        }
+        .stats_badge {
+            font-size: 11px;
+            background: linear-gradient(180deg, rgba(255,255,255,0.35), rgba(255,255,255,0.08));
+            padding: 4px 11px;
+            border-radius: 12px;
+            font-weight: normal;
+            border: 1px solid rgba(255,255,255,0.4);
+            box-shadow: 0 1px 2px rgba(0,0,0,0.15);
+        }
+        .osnovnoy_bazar { max-width: 920px; margin: 16px auto; padding: 0 10px; box-sizing: border-box; }
+
+        .nav_vkladki {
+            display: flex;
+            border: 1px solid #b7c9dd;
+            margin-bottom: 16px;
+            background: linear-gradient(180deg, #fafcfe 0%, #e3ecf6 100%);
+            border-radius: 10px;
+            flex-wrap: wrap;
+            overflow: hidden;
+            box-shadow: 0 1px 3px rgba(40,70,110,0.15) inset, 0 1px 0 rgba(255,255,255,0.6);
+            padding: 4px;
+            gap: 4px;
+        }
+        .vkladka_knopka {
+            padding: 9px 16px;
+            color: #336699;
+            text-decoration: none;
+            font-weight: bold;
+            cursor: pointer;
+            flex: 1;
+            text-align: center;
+            font-size: 12px;
+            min-width: 80px;
+            border-radius: 7px;
+            transition: background 0.15s ease;
+        }
+        .vkladka_knopka:hover { background: rgba(255,255,255,0.6); }
+        .vkladka_knopka.aktivnaya_vkladka {
+            background: linear-gradient(180deg, #6fb3e8 0%, #4a8fd1 50%, #3979bd 100%);
+            color: #ffffff;
+            text-shadow: 0 1px 1px rgba(0,0,0,0.25);
+            box-shadow: 0 1px 3px rgba(30,60,100,0.4) inset, 0 1px 0 rgba(255,255,255,0.3);
+        }
+
+        .belaya_korobka {
+            background: linear-gradient(180deg, #ffffff 0%, #fbfdff 100%);
+            border: 1px solid #c2d3e6;
+            border-radius: 12px;
+            padding: 14px;
+            margin-bottom: 16px;
+            box-shadow: 0 1px 3px rgba(50,80,120,0.12), 0 1px 0 rgba(255,255,255,0.8) inset;
+        }
+        .zagolovok_korobki {
+            background: linear-gradient(180deg, #eaf2fb 0%, #d7e6f5 100%);
+            border: 1px solid #c2d3e6;
+            border-radius: 8px;
+            color: #2f5f95;
+            font-weight: bold;
+            padding: 8px 10px;
+            margin-bottom: 12px;
+            font-size: 12px;
+            text-shadow: 0 1px 0 rgba(255,255,255,0.6);
+            box-shadow: 0 1px 0 rgba(255,255,255,0.5) inset;
+        }
+        .tekstovoe_pole {
+            border: 1px solid #aebfd4;
+            font-family: Arial, sans-serif;
+            font-size: 13px;
+            padding: 8px 10px;
+            width: 100%;
+            box-sizing: border-box;
+            margin-bottom: 9px;
+            border-radius: 7px;
+            background: #ffffff;
+            box-shadow: 0 1px 3px rgba(40,70,110,0.12) inset;
+            transition: border-color 0.15s, box-shadow 0.15s;
+        }
+        .tekstovoe_pole:focus {
+            outline: none;
+            border-color: #5b9bd9;
+            box-shadow: 0 1px 3px rgba(40,70,110,0.12) inset, 0 0 0 3px rgba(91,155,217,0.25);
+        }
+
+        /* Глянцевые кнопки с бликом сверху — фирменная фишка Web 2.0 нулевых */
+        .knopka_sinyaya, .knopka_seraya {
+            border-radius: 7px;
+            font-weight: bold;
+            padding: 8px 16px;
+            cursor: pointer;
+            font-size: 12px;
+            position: relative;
+            transition: filter 0.1s ease, transform 0.05s ease;
+        }
+        .knopka_sinyaya {
+            background: linear-gradient(180deg, #6fb3ea 0%, #4a90d9 45%, #2f73c2 46%, #2864ab 100%);
+            border: 1px solid #1f4f8e;
+            color: #ffffff;
+            text-shadow: 0 1px 1px rgba(0,0,0,0.3);
+            box-shadow: 0 1px 0 rgba(255,255,255,0.5) inset, 0 2px 4px rgba(30,60,100,0.3), 0 1px 0 rgba(0,0,0,0.05);
+        }
+        .knopka_sinyaya:hover { filter: brightness(1.08); }
+        .knopka_sinyaya:active { transform: translateY(1px); filter: brightness(0.95); }
+        .knopka_seraya {
+            background: linear-gradient(180deg, #ffffff 0%, #f2f4f7 45%, #e1e6ec 46%, #d4dbe3 100%);
+            border: 1px solid #b3bcc7;
+            color: #44505c;
+            text-shadow: 0 1px 0 rgba(255,255,255,0.8);
+            box-shadow: 0 1px 0 rgba(255,255,255,0.7) inset, 0 1px 2px rgba(0,0,0,0.08);
+        }
+        .knopka_seraya:hover { filter: brightness(1.04); }
+        .knopka_seraya:active { transform: translateY(1px); }
+
+        .kartochка_posta { border-bottom: 1px solid #e3ebf4; padding: 14px 4px; display: flex; gap: 10px; position: relative; transition: background 0.15s; border-radius: 8px; }
+        .kartochка_posta:hover { background: rgba(91,155,217,0.05); }
+        .mini_ava { width: 38px; height: 38px; border-radius: 50%; object-fit: cover; background: #dce6f0; flex-shrink: 0; border: 1px solid #c2d3e6; box-shadow: 0 1px 2px rgba(0,0,0,0.15); }
         .pravaya_chast_posta { flex: 1; min-width: 0; }
-        .avtor_posta { color: #3b5998; font-weight: bold; text-decoration: none; font-size: 13px; cursor: pointer; }
-        .vremya_posta { color: #777; font-size: 10px; margin-left: 5px; }
-        .tekst_posta { font-size: 13px; margin-top: 6px; line-height: 15px; word-wrap: break-word; white-space: pre-wrap; }
-        .mod_metka { font-size: 10px; color: #cc0000; font-style: italic; display: block; margin-top: 4px; }
-        .kartinka_v_poste { margin-top: 8px; border: 1px solid #d8dfea; padding: 2px; max-width: 100%; max-height: 280px; display: block; cursor: pointer; }
-        .line_laykov { margin-top: 10px; display: flex; align-items: center; justify-content: flex-start; gap: 15px; flex-wrap: wrap; }
-        .knopka_serdechko { font-size: 16px; color: #bdc7d8; cursor: pointer; user-select: none; }
-        .knopka_serdechko.aktivniy_layk { color: #e0245e; }
-        .knopka_del_posta, .knopka_mod_posta { background: none; border: none; font-size: 11px; cursor: pointer; padding: 0; }
-        .knopka_del_posta { color: #777; }
-        .knopka_mod_posta { color: #cc0000; font-weight: bold; }
-        
-        .blok_profilya_verh { display: flex; flex-direction: row; gap: 12px; }
-        .ava_ramka { width: 90px; height: 90px; border: 1px solid #bdc7d8; display: flex; align-items: center; justify-content: center; overflow: hidden; flex-shrink: 0; }
+        .avtor_posta { color: #2f6fb0; font-weight: bold; text-decoration: none; font-size: 13px; cursor: pointer; }
+        .avtor_posta:hover { text-decoration: underline; }
+        .vremya_posta { color: #8a9bac; font-size: 10px; margin-left: 5px; }
+        .tekst_posta { font-size: 13px; margin-top: 6px; line-height: 17px; word-wrap: break-word; white-space: pre-wrap; color: #2c3e50; }
+        .mod_metka { font-size: 10px; color: #d9534f; font-style: italic; display: block; margin-top: 4px; }
+        .kartinka_v_poste { margin-top: 9px; border: 4px solid #ffffff; outline: 1px solid #c2d3e6; border-radius: 6px; padding: 0; max-width: 100%; max-height: 280px; display: block; cursor: pointer; box-shadow: 0 1px 4px rgba(0,0,0,0.18); }
+        .line_laykov { margin-top: 10px; display: flex; align-items: center; justify-content: flex-start; gap: 16px; flex-wrap: wrap; }
+        .knopka_serdechko { font-size: 17px; color: #c2d3e6; cursor: pointer; user-select: none; transition: transform 0.15s; }
+        .knopka_serdechko:hover { transform: scale(1.15); }
+        .knopka_serdechko.aktivniy_layk { color: #e0245e; text-shadow: 0 0 6px rgba(224,36,94,0.4); }
+        .knopka_del_posta, .knopka_mod_posta { background: none; border: none; font-size: 11px; cursor: pointer; padding: 0; border-radius: 4px; }
+        .knopka_del_posta { color: #9aa7b5; }
+        .knopka_del_posta:hover { color: #d9534f; }
+        .knopka_mod_posta { color: #d9534f; font-weight: bold; }
+
+        .blok_profilya_verh { display: flex; flex-direction: row; gap: 14px; }
+        .ava_ramka { width: 92px; height: 92px; border: 4px solid #ffffff; outline: 1px solid #c2d3e6; border-radius: 10px; display: flex; align-items: center; justify-content: center; overflow: hidden; flex-shrink: 0; box-shadow: 0 1px 5px rgba(0,0,0,0.2); background: #eaf2fb; }
         .ava_kartinka { width: 100%; height: 100%; object-fit: cover; }
-        .anketa_info { font-size: 12px; line-height: 18px; flex: 1; }
+        .anketa_info { font-size: 12px; line-height: 19px; flex: 1; color: #44505c; }
         .skritiy_blok { display: none !important; }
 
         /* === КАПЧА С КАРТИНКАМИ === */
-        .captcha_box { 
-            margin: 12px 0; 
-            padding: 12px; 
-            background: linear-gradient(135deg, #f0f4f8 0%, #e8eef5 100%); 
-            border: 2px solid #4285f4; 
-            border-radius: 8px; 
-            box-shadow: 0 2px 8px rgba(66, 133, 244, 0.2);
+        .captcha_box {
+            margin: 12px 0;
+            padding: 14px;
+            background: linear-gradient(180deg, #f3f8fd 0%, #dfeafc 100%);
+            border: 1px solid #8fc1ec;
+            border-radius: 10px;
+            box-shadow: 0 1px 4px rgba(66, 133, 244, 0.25), 0 1px 0 rgba(255,255,255,0.6) inset;
         }
-        .captcha_header { display: flex; align-items: center; gap: 8px; margin-bottom: 10px; font-size: 13px; font-weight: bold; color: #202124; }
+        .captcha_header { display: flex; align-items: center; gap: 8px; margin-bottom: 10px; font-size: 13px; font-weight: bold; color: #2c4a6e; }
         .captcha_header::before { content: "🛡️"; font-size: 18px; }
-        .captcha_instruction { background: #fff; padding: 8px 12px; border-radius: 6px; margin-bottom: 10px; font-size: 12px; color: #202124; border-left: 3px solid #4285f4; }
-        .captcha_grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; margin-bottom: 10px; background: #fff; padding: 8px; border-radius: 6px; border: 1px solid #dadce0; }
-        .captcha_cell { aspect-ratio: 1; background: #f8f9fa; border: 2px solid #dadce0; border-radius: 6px; display: flex; align-items: center; justify-content: center; font-size: 42px; cursor: pointer; transition: all 0.2s ease; user-select: none; }
-        .captcha_cell:hover { background: #e8f0fe; border-color: #4285f4; transform: scale(1.05); }
-        .captcha_cell.selected { background: #d2e3fc; border-color: #4285f4; box-shadow: 0 0 0 3px rgba(66, 133, 244, 0.3); transform: scale(0.95); }
-        .captcha_cell.correct { background: #ceead6; border-color: #34a853; animation: pulse 0.5s ease; }
-        .captcha_cell.wrong { background: #fce8e6; border-color: #ea4335; animation: shake 0.5s ease; }
+        .captcha_instruction { background: #fff; padding: 9px 12px; border-radius: 7px; margin-bottom: 10px; font-size: 12px; color: #2c4a6e; border-left: 3px solid #4a90d9; box-shadow: 0 1px 2px rgba(0,0,0,0.06) inset; }
+        .captcha_grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 7px; margin-bottom: 10px; background: #fff; padding: 9px; border-radius: 8px; border: 1px solid #cfe0f0; }
+        .captcha_cell { aspect-ratio: 1; background: linear-gradient(180deg, #fbfdff, #eef3f8); border: 2px solid #cfe0f0; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 42px; cursor: pointer; transition: all 0.2s ease; user-select: none; box-shadow: 0 1px 2px rgba(0,0,0,0.06); }
+        .captcha_cell:hover { background: linear-gradient(180deg, #eaf3fc, #cfe5fa); border-color: #4a90d9; transform: scale(1.05); }
+        .captcha_cell.selected { background: linear-gradient(180deg, #d2e8fc, #b3d9f7); border-color: #2f73c2; box-shadow: 0 0 0 3px rgba(66, 133, 244, 0.3); transform: scale(0.95); }
+        .captcha_cell.correct { background: linear-gradient(180deg, #d6f2dd, #b9e6c6); border-color: #3aa55a; animation: pulse 0.5s ease; }
+        .captcha_cell.wrong { background: linear-gradient(180deg, #fcdedb, #f7bdb8); border-color: #e0524a; animation: shake 0.5s ease; }
         @keyframes pulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.1); } }
         @keyframes shake { 0%, 100% { transform: translateX(0); } 25% { transform: translateX(-5px); } 75% { transform: translateX(5px); } }
         .captcha_actions { display: flex; gap: 8px; align-items: center; }
-        .captcha_btn { background: #4285f4; color: #fff; border: none; padding: 8px 16px; border-radius: 4px; font-size: 12px; font-weight: bold; cursor: pointer; transition: background 0.2s; }
-        .captcha_btn:hover { background: #3367d6; }
-        .captcha_btn:disabled { background: #dadce0; cursor: not-allowed; }
-        .captcha_refresh { background: none; border: none; color: #4285f4; font-size: 11px; cursor: pointer; text-decoration: underline; padding: 4px 8px; }
-        .captcha_refresh:hover { color: #3367d6; }
-        .captcha_status { margin-top: 8px; padding: 6px 10px; border-radius: 4px; font-size: 11px; font-weight: bold; text-align: center; }
-        .captcha_status.success { background: #ceead6; color: #137333; }
-        .captcha_status.error { background: #fce8e6; color: #c5221f; }
+        .captcha_btn {
+            background: linear-gradient(180deg, #6fb3ea 0%, #4a90d9 45%, #2f73c2 46%, #2864ab 100%);
+            color: #fff; border: 1px solid #1f4f8e; padding: 9px 18px; border-radius: 7px;
+            font-size: 12px; font-weight: bold; cursor: pointer; text-shadow: 0 1px 1px rgba(0,0,0,0.3);
+            box-shadow: 0 1px 0 rgba(255,255,255,0.5) inset, 0 2px 4px rgba(30,60,100,0.3);
+        }
+        .captcha_btn:hover { filter: brightness(1.08); }
+        .captcha_btn:disabled { background: #cfd6dd; border-color: #b3bcc7; box-shadow: none; cursor: not-allowed; }
+        .captcha_refresh { background: none; border: none; color: #2f73c2; font-size: 11px; cursor: pointer; text-decoration: underline; padding: 4px 8px; }
+        .captcha_refresh:hover { color: #1f4f8e; }
+        .captcha_status { margin-top: 9px; padding: 7px 11px; border-radius: 6px; font-size: 11px; font-weight: bold; text-align: center; }
+        .captcha_status.success { background: linear-gradient(180deg,#d6f2dd,#bce8c9); color: #1e7a3a; border: 1px solid #9bd6ac; }
+        .captcha_status.error { background: linear-gradient(180deg,#fcdedb,#f9c5c0); color: #a8312a; border: 1px solid #ec9c95; }
 
         /* === МЕССЕНДЖЕР === */
-        .msg_container { display: flex; gap: 12px; }
-        .msg_sidebar { flex: 0 0 240px; display: flex; flex-direction: column; gap: 8px; }
+        .msg_container { display: flex; gap: 14px; }
+        .msg_sidebar { flex: 0 0 240px; display: flex; flex-direction: column; gap: 10px; }
         .msg_chat_area { flex: 1; display: flex; flex-direction: column; min-width: 0; position: relative; }
-        .msg_spisok { max-height: 450px; overflow-y: auto; background: #fff; border: 1px solid #bdc7d8; padding: 4px; }
-        .msg_dialog_el { padding: 8px; border-bottom: 1px dotted #d8dfea; cursor: pointer; display: flex; justify-content: space-between; align-items: center; }
-        .msg_dialog_el:hover { background: #eceff5; }
-        .msg_dialog_el.aktivniy { background: #d8dfea; }
-        .msg_imya { color: #3b5998; font-weight: bold; }
-        .msg_vremya { font-size: 10px; color: #888; }
-        .msg_net { color: #777; padding: 10px; text-align: center; font-size: 12px; }
-        .msg_okno { flex: 1; background: #fff; border: 1px solid #bdc7d8; height: 380px; overflow-y: auto; padding: 10px; box-sizing: border-box; display: flex; flex-direction: column; gap: 6px; }
-        .msg_balun { max-width: 75%; padding: 6px 10px; border-radius: 10px; word-wrap: break-word; }
-        .msg_balun.moi { background: #d8dfea; align-self: flex-end; border-bottom-right-radius: 2px; }
-        .msg_balun.chuzhoi { background: #eceff5; align-self: flex-start; border-bottom-left-radius: 2px; }
+        .msg_spisok { max-height: 450px; overflow-y: auto; background: #ffffff; border: 1px solid #c2d3e6; border-radius: 8px; padding: 4px; }
+        .msg_dialog_el { padding: 9px; border-radius: 7px; cursor: pointer; display: flex; justify-content: space-between; align-items: center; transition: background 0.15s; }
+        .msg_dialog_el:hover { background: #eaf2fb; }
+        .msg_dialog_el.aktivniy { background: linear-gradient(180deg,#dcebfa,#c7ddf2); box-shadow: 0 1px 2px rgba(0,0,0,0.08) inset; }
+        .msg_imya { color: #2f6fb0; font-weight: bold; }
+        .msg_vremya { font-size: 10px; color: #8a9bac; }
+        .msg_net { color: #8a9bac; padding: 12px; text-align: center; font-size: 12px; }
+        .msg_okno { flex: 1; background: #fff; border: 1px solid #c2d3e6; border-radius: 10px; height: 380px; overflow-y: auto; padding: 12px; box-sizing: border-box; display: flex; flex-direction: column; gap: 7px; }
+        .msg_balun { max-width: 75%; padding: 7px 11px; border-radius: 13px; word-wrap: break-word; }
+        .msg_balun.moi { background: linear-gradient(180deg,#cfe6fb,#b9d9f5); align-self: flex-end; border-bottom-right-radius: 3px; }
+        .msg_balun.chuzhoi { background: linear-gradient(180deg,#ffffff,#f1f5fa); align-self: flex-start; border-bottom-left-radius: 3px; border: 1px solid #e3ebf4; }
         .msg_balun.udaleno { background: #f5f5f5; color: #999; font-style: italic; align-self: center; max-width: 60%; text-align: center; font-size: 11px; }
-        .msg_vremya_soob { font-size: 10px; color: #777; display: block; margin-top: 2px; }
-        .msg_metka_red { font-size: 10px; color: #888; font-style: italic; }
+        .msg_vremya_soob { font-size: 10px; color: #8a9bac; display: block; margin-top: 2px; }
+        .msg_metka_red { font-size: 10px; color: #8a9bac; font-style: italic; }
         .msg_knopka_act { font-size: 10px; cursor: pointer; background: none; border: none; padding: 0; margin-left: 6px; }
-        .msg_knopka_act.redakt { color: #3b5998; }
-        .msg_knopka_act.udalit { color: #cc0000; }
-        .msg_panel_vvoda { display: flex; gap: 6px; margin-top: 8px; align-items: flex-end; }
+        .msg_knopka_act.redakt { color: #2f6fb0; }
+        .msg_knopka_act.udalit { color: #d9534f; }
+        .msg_panel_vvoda { display: flex; gap: 7px; margin-top: 9px; align-items: flex-end; }
         .msg_panel_vvoda textarea { flex: 1; resize: vertical; min-height: 36px; max-height: 100px; }
-        .msg_zagolovok { background: #eceff5; border: 1px solid #d8dfea; color: #3b5998; font-weight: bold; padding: 8px; font-size: 13px; display: flex; justify-content: space-between; align-items: center; }
-        .msg_panel_dop { display: flex; gap: 8px; align-items: center; margin-top: 4px; font-size: 11px; color: #555; flex-wrap: wrap; }
-        .msg_label_file { cursor: pointer; padding: 3px 8px; background: #eceff5; border: 1px solid #bdc7d8; border-radius: 3px; display: inline-block; }
-        .msg_label_file:hover { background: #d8dfea; }
-        .msg_kartinka_balun { max-width: 100%; max-height: 220px; border: 1px solid #bdc7d8; padding: 2px; margin-top: 4px; display: block; cursor: pointer; }
+        .msg_zagolovok {
+            background: linear-gradient(180deg, #eaf2fb 0%, #d7e6f5 100%);
+            border: 1px solid #c2d3e6; border-radius: 10px 10px 0 0;
+            color: #2f5f95; font-weight: bold; padding: 9px 11px; font-size: 13px;
+            display: flex; justify-content: space-between; align-items: center;
+            box-shadow: 0 1px 0 rgba(255,255,255,0.5) inset;
+        }
+        .msg_panel_dop { display: flex; gap: 8px; align-items: center; margin-top: 5px; font-size: 11px; color: #6b7785; flex-wrap: wrap; }
+        .msg_label_file { cursor: pointer; padding: 4px 9px; background: linear-gradient(180deg,#fafcfe,#e3ecf6); border: 1px solid #c2d3e6; border-radius: 6px; display: inline-block; }
+        .msg_label_file:hover { background: linear-gradient(180deg,#eaf2fb,#d7e6f5); }
+        .msg_kartinka_balun { max-width: 100%; max-height: 220px; border: 3px solid #ffffff; outline: 1px solid #c2d3e6; border-radius: 6px; padding: 0; margin-top: 5px; display: block; cursor: pointer; box-shadow: 0 1px 3px rgba(0,0,0,0.15); }
 
-        .modal_overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.8); z-index: 1000; display: flex; align-items: center; justify-content: center; cursor: pointer; }
-        .modal_overlay img { max-width: 95%; max-height: 95%; border: 3px solid #fff; }
+        .modal_overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(10,20,35,0.85); z-index: 1000; display: flex; align-items: center; justify-content: center; cursor: pointer; }
+        .modal_overlay img { max-width: 95%; max-height: 95%; border: 5px solid #fff; border-radius: 4px; box-shadow: 0 4px 20px rgba(0,0,0,0.5); }
 
         /* === МОБИЛЬНАЯ ОПТИМИЗАЦИЯ === */
         @media (max-width: 680px) {
@@ -114,15 +256,16 @@
             .msg_sidebar.skrityi { display: none; }
             .msg_chat_area.skrityi { display: none; }
             .blok_profilya_verh { flex-direction: column; align-items: center; text-align: center; }
-            .knopka_sinyaya, .knopka_seraya { width: 100%; text-align: center; padding: 10px; margin-bottom: 4px; }
+            .knopka_sinyaya, .knopka_seraya { width: 100%; text-align: center; padding: 11px; margin-bottom: 5px; }
             .captcha_cell { font-size: 32px; }
 
             /* Умная фиксация строки ввода для мобилок */
             .msg_okno {
                 flex: 1;
-                margin-bottom: 110px; /* Место под фиксированные панели */
+                margin-bottom: 156px; /* Место под фиксированные панели (поле ввода + доп. панель) */
                 border: none;
-                border-top: 1px solid #bdc7d8;
+                border-top: 1px solid #c2d3e6;
+                border-radius: 0;
                 padding-bottom: 15px;
             }
             .msg_panel_vvoda {
@@ -132,106 +275,120 @@
                 right: 0;
                 background: #fff;
                 padding: 10px;
-                border-top: 1px solid #bdc7d8;
+                border-top: 1px solid #c2d3e6;
                 z-index: 999;
                 margin: 0;
-                align-items: center;
-                box-shadow: 0 -2px 5px rgba(0,0,0,0.05);
+                align-items: flex-end;
+                min-height: 76px;
+                box-sizing: border-box;
+                box-shadow: 0 -2px 6px rgba(0,0,0,0.1);
             }
             .msg_panel_vvoda textarea {
                 font-size: 16px; /* Защита от автозума в iOS Safari */
-                padding: 8px;
-                border-radius: 10px;
-                min-height: 40px;
+                padding: 10px;
+                border-radius: 12px;
+                min-height: 56px;
+                max-height: 120px;
+            }
+            .msg_panel_vvoda .knopka_sinyaya,
+            .msg_panel_vvoda .knopka_seraya {
+                width: auto;
+                flex-shrink: 0;
+                margin-bottom: 0;
+                padding: 10px 14px;
             }
             .msg_panel_dop {
                 position: fixed;
-                bottom: 60px;
+                bottom: 96px;
                 left: 0;
                 right: 0;
-                background: rgba(255,255,255,0.95);
+                background: rgba(255,255,255,0.97);
                 padding: 5px 10px;
                 z-index: 998;
                 margin: 0;
                 justify-content: flex-start;
-                border-top: 1px solid #bdc7d8;
+                border-top: 1px solid #c2d3e6;
             }
         }
 
         /* === СТАТУС ПОДКЛЮЧЕНИЯ (ВХОД) === */
-        .conn_status_line { display: flex; align-items: center; gap: 6px; font-size: 11px; padding: 6px 8px; margin-bottom: 8px; border: 1px solid #d8dfea; background: #eceff5; border-radius: 3px; color: #555; }
-        .conn_dot { width: 8px; height: 8px; border-radius: 50%; background: #cc0000; flex-shrink: 0; transition: background 0.3s; }
-        .conn_dot.ok { background: #2e7d32; }
-        .conn_dot.wait { background: #e0a800; animation: conn_blink 1s infinite; }
+        .conn_status_line { display: flex; align-items: center; gap: 7px; font-size: 11px; padding: 7px 10px; margin-bottom: 9px; border: 1px solid #c2d3e6; background: linear-gradient(180deg,#eaf2fb,#d7e6f5); border-radius: 7px; color: #44505c; box-shadow: 0 1px 0 rgba(255,255,255,0.5) inset; }
+        .conn_dot { width: 9px; height: 9px; border-radius: 50%; background: #d9534f; flex-shrink: 0; transition: background 0.3s; box-shadow: 0 0 4px rgba(217,83,79,0.6), inset 0 1px 1px rgba(255,255,255,0.4); }
+        .conn_dot.ok { background: #3aa55a; box-shadow: 0 0 5px rgba(58,165,90,0.7), inset 0 1px 1px rgba(255,255,255,0.4); }
+        .conn_dot.wait { background: #e0a800; animation: conn_blink 1s infinite; box-shadow: 0 0 4px rgba(224,168,0,0.6), inset 0 1px 1px rgba(255,255,255,0.4); }
         @keyframes conn_blink { 0%, 100% { opacity: 1; } 50% { opacity: 0.3; } }
         .vxod_spinner { display: inline-block; width: 11px; height: 11px; border: 2px solid rgba(255,255,255,0.5); border-top-color: #fff; border-radius: 50%; animation: spin360 0.7s linear infinite; margin-right: 6px; vertical-align: middle; }
         @keyframes spin360 { to { transform: rotate(360deg); } }
-        .knopka_sinyaya:disabled, .knopka_seraya:disabled { opacity: 0.6; cursor: not-allowed; }
-        .vxod_retry_link { color: #3b5998; cursor: pointer; text-decoration: underline; font-weight: bold; margin-left: 4px; }
+        .knopka_sinyaya:disabled, .knopka_seraya:disabled { opacity: 0.55; cursor: not-allowed; filter: none; }
+        .vxod_retry_link { color: #2f6fb0; cursor: pointer; text-decoration: underline; font-weight: bold; margin-left: 4px; }
 
         /* === МЕССЕНДЖЕР v2: ОБНОВЛЁННЫЙ ИНТЕРФЕЙС === */
         .msg_sidebar_head { display: flex; justify-content: space-between; align-items: center; }
-        .msg_moy_status_dot { width: 7px; height: 7px; border-radius: 50%; background: #2e7d32; display: inline-block; margin-right: 4px; }
-        .msg_dialog_el { padding: 7px 8px; gap: 8px; }
-        .msg_dialog_ava { width: 32px; height: 32px; border-radius: 50%; object-fit: cover; background: #d8dfea; flex-shrink: 0; display: flex; align-items: center; justify-content: center; font-size: 16px; color: #99a6c2; overflow: hidden; }
+        .msg_moy_status_dot { width: 7px; height: 7px; border-radius: 50%; background: #3aa55a; display: inline-block; margin-right: 4px; box-shadow: 0 0 4px rgba(58,165,90,0.6); }
+        .msg_dialog_el { padding: 8px 9px; gap: 9px; }
+        .msg_dialog_ava { width: 33px; height: 33px; border-radius: 50%; object-fit: cover; background: #dce6f0; flex-shrink: 0; display: flex; align-items: center; justify-content: center; font-size: 16px; color: #9aaec4; overflow: hidden; border: 1px solid #c2d3e6; box-shadow: 0 1px 2px rgba(0,0,0,0.1); }
         .msg_dialog_ava img { width: 100%; height: 100%; object-fit: cover; }
         .msg_dialog_glavnoe { flex: 1; min-width: 0; }
         .msg_dialog_stroka1 { display: flex; justify-content: space-between; align-items: baseline; gap: 6px; }
-        .msg_dialog_preview { font-size: 11px; color: #888; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 150px; }
-        .msg_dialog_unread { background: #3b5998; color: #fff; font-size: 10px; font-weight: bold; border-radius: 8px; padding: 1px 6px; flex-shrink: 0; }
+        .msg_dialog_preview { font-size: 11px; color: #8a9bac; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 150px; }
+        .msg_dialog_unread { background: linear-gradient(180deg,#5b9bd9,#2f6fb0); color: #fff; font-size: 10px; font-weight: bold; border-radius: 9px; padding: 1px 7px; flex-shrink: 0; box-shadow: 0 1px 2px rgba(0,0,0,0.2); }
 
         .msg_zagolovok_sobesednik { display: flex; align-items: center; gap: 8px; }
-        .msg_zagolovok_ava { width: 26px; height: 26px; border-radius: 50%; object-fit: cover; background: #d8dfea; display: flex; align-items: center; justify-content: center; font-size: 13px; overflow: hidden; }
+        .msg_zagolovok_ava { width: 27px; height: 27px; border-radius: 50%; object-fit: cover; background: #dce6f0; display: flex; align-items: center; justify-content: center; font-size: 13px; overflow: hidden; border: 1px solid #c2d3e6; }
         .msg_zagolovok_ava img { width: 100%; height: 100%; object-fit: cover; }
-        .msg_zagolovok_imya_blok { display: flex; flex-direction: column; line-height: 13px; }
-        .msg_zagolovok_status { font-size: 10px; color: #2e7d32; font-weight: normal; }
+        .msg_zagolovok_imya_blok { display: flex; flex-direction: column; line-height: 14px; }
+        .msg_zagolovok_status { font-size: 10px; color: #3aa55a; font-weight: normal; }
 
-        .msg_okno { background: #e9edf3 url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='60' height='60'%3E%3Crect width='60' height='60' fill='%23e9edf3'/%3E%3Ccircle cx='30' cy='30' r='1' fill='%23d8dfea'/%3E%3C/svg%3E"); }
-        .msg_balun { padding: 6px 8px 5px; box-shadow: 0 1px 1px rgba(0,0,0,0.08); }
+        .msg_okno { background: #eef3f9 url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='60' height='60'%3E%3Crect width='60' height='60' fill='%23eef3f9'/%3E%3Ccircle cx='30' cy='30' r='1' fill='%23d3e2f0'/%3E%3C/svg%3E"); }
+        .msg_balun { padding: 7px 10px 6px; box-shadow: 0 1px 2px rgba(0,0,0,0.1); }
         .msg_balun.chuzhoi { display: flex; flex-direction: column; }
-        .msg_pechataet { font-size: 11px; color: #888; font-style: italic; padding: 4px 2px; align-self: flex-start; }
+        .msg_pechataet { font-size: 11px; color: #8a9bac; font-style: italic; padding: 4px 4px; align-self: flex-start; }
         .msg_pechataet .tochki span { animation: tochki_anim 1.2s infinite; opacity: 0; }
         .msg_pechataet .tochki span:nth-child(2) { animation-delay: 0.2s; }
         .msg_pechataet .tochki span:nth-child(3) { animation-delay: 0.4s; }
         @keyframes tochki_anim { 0%, 100% { opacity: 0; } 50% { opacity: 1; } }
 
         .msg_panel_dop { justify-content: flex-start; }
-        .msg_label_file, .msg_knopka_media { cursor: pointer; padding: 4px 9px; background: #eceff5; border: 1px solid #bdc7d8; border-radius: 3px; display: inline-flex; align-items: center; gap: 4px; font-size: 11px; color: #333; }
-        .msg_label_file:hover, .msg_knopka_media:hover { background: #d8dfea; }
-        .msg_knopka_media.rec_active { background: #fce8e6; border-color: #ea4335; color: #c5221f; font-weight: bold; }
+        .msg_label_file, .msg_knopka_media { cursor: pointer; padding: 5px 10px; background: linear-gradient(180deg,#fafcfe,#e3ecf6); border: 1px solid #c2d3e6; border-radius: 6px; display: inline-flex; align-items: center; gap: 4px; font-size: 11px; color: #44505c; }
+        .msg_label_file:hover, .msg_knopka_media:hover { background: linear-gradient(180deg,#eaf2fb,#d7e6f5); }
+        .msg_knopka_media.rec_active { background: linear-gradient(180deg,#fcdedb,#f7bdb8); border-color: #e0524a; color: #a8312a; font-weight: bold; }
 
         /* === ГОЛОСОВЫЕ СООБЩЕНИЯ === */
         .golos_player { display: flex; align-items: center; gap: 8px; min-width: 190px; max-width: 230px; }
-        .golos_play_btn { width: 30px; height: 30px; border-radius: 50%; background: #3b5998; color: #fff; border: none; cursor: pointer; flex-shrink: 0; font-size: 12px; display: flex; align-items: center; justify-content: center; }
-        .golos_play_btn:hover { background: #2d4373; }
+        .golos_play_btn { width: 31px; height: 31px; border-radius: 50%; background: linear-gradient(180deg,#6fb3ea,#2f73c2); color: #fff; border: 1px solid #1f4f8e; cursor: pointer; flex-shrink: 0; font-size: 12px; display: flex; align-items: center; justify-content: center; box-shadow: 0 1px 2px rgba(0,0,0,0.25), 0 1px 0 rgba(255,255,255,0.3) inset; }
+        .golos_play_btn:hover { filter: brightness(1.1); }
         .golos_progress_wrap { flex: 1; }
-        .golos_progress_bar { width: 100%; height: 4px; background: #d8dfea; border-radius: 2px; overflow: hidden; cursor: pointer; }
-        .golos_progress_fill { height: 100%; background: #3b5998; width: 0%; }
-        .golos_vremya { font-size: 10px; color: #888; margin-top: 2px; }
-        .msg_balun.moi .golos_play_btn { background: #29447e; }
-        .msg_balun.moi .golos_progress_bar { background: #b7c2dc; }
+        .golos_progress_bar { width: 100%; height: 5px; background: #dce6f0; border-radius: 3px; overflow: hidden; cursor: pointer; box-shadow: 0 1px 2px rgba(0,0,0,0.1) inset; }
+        .golos_progress_fill { height: 100%; background: linear-gradient(90deg,#5b9bd9,#2f6fb0); width: 0%; }
+        .golos_vremya { font-size: 10px; color: #8a9bac; margin-top: 2px; }
+        .msg_balun.moi .golos_play_btn { background: linear-gradient(180deg,#5096cf,#235e9e); }
+        .msg_balun.moi .golos_progress_bar { background: #aecbe8; }
 
         /* === ВИДЕО-КРУЖОЧКИ === */
-        .video_kruzhok_wrap { position: relative; width: 160px; height: 160px; border-radius: 50%; overflow: hidden; border: 3px solid #fff; box-shadow: 0 1px 3px rgba(0,0,0,0.3); cursor: pointer; background: #000; }
+        .video_kruzhok_wrap { position: relative; width: 160px; height: 160px; border-radius: 50%; overflow: hidden; border: 4px solid #fff; box-shadow: 0 2px 6px rgba(0,0,0,0.35); cursor: pointer; background: #000; }
         .video_kruzhok_wrap video { width: 100%; height: 100%; object-fit: cover; }
         .video_kruzhok_play_overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; background: rgba(0,0,0,0.25); color: #fff; font-size: 30px; pointer-events: none; }
         .video_kruzhok_wrap.playing .video_kruzhok_play_overlay { display: none; }
-        .video_kruzhok_dlitelnost { position: absolute; bottom: 6px; right: 10px; background: rgba(0,0,0,0.55); color: #fff; font-size: 10px; padding: 1px 5px; border-radius: 8px; }
+        .video_kruzhok_dlitelnost { position: absolute; bottom: 6px; right: 10px; background: rgba(0,0,0,0.6); color: #fff; font-size: 10px; padding: 1px 6px; border-radius: 9px; }
 
         /* === ЗАПИСЬ ГОЛОСА/ВИДЕО (ОВЕРЛЕЙ) === */
-        .zapis_overlay_panel { display: flex; align-items: center; gap: 10px; background: #fce8e6; border: 1px solid #ea4335; border-radius: 3px; padding: 6px 10px; margin-top: 8px; font-size: 12px; color: #c5221f; }
-        .zapis_rec_dot { width: 9px; height: 9px; border-radius: 50%; background: #ea4335; animation: conn_blink 1s infinite; flex-shrink: 0; }
+        .zapis_overlay_panel { display: flex; align-items: center; gap: 10px; background: linear-gradient(180deg,#fcdedb,#f9c5c0); border: 1px solid #e0524a; border-radius: 8px; padding: 7px 11px; margin-top: 9px; font-size: 12px; color: #a8312a; }
+        .zapis_rec_dot { width: 9px; height: 9px; border-radius: 50%; background: #e0524a; animation: conn_blink 1s infinite; flex-shrink: 0; box-shadow: 0 0 4px rgba(224,82,74,0.6); }
         .zapis_taimer { font-weight: bold; font-family: monospace; font-size: 13px; }
-        .zapis_stop_btn { margin-left: auto; background: #ea4335; color: #fff; border: none; padding: 4px 10px; border-radius: 3px; cursor: pointer; font-weight: bold; font-size: 11px; }
-        .zapis_cancel_btn { background: none; border: none; color: #888; cursor: pointer; font-size: 11px; text-decoration: underline; }
-        .video_preview_zapisi { width: 70px; height: 70px; border-radius: 50%; object-fit: cover; border: 2px solid #ea4335; background: #000; }
+        .zapis_stop_btn { margin-left: auto; background: linear-gradient(180deg,#e87b73,#c9362d); color: #fff; border: 1px solid #962620; padding: 5px 11px; border-radius: 6px; cursor: pointer; font-weight: bold; font-size: 11px; box-shadow: 0 1px 0 rgba(255,255,255,0.3) inset; }
+        .zapis_cancel_btn { background: none; border: none; color: #8a9bac; cursor: pointer; font-size: 11px; text-decoration: underline; }
+        .video_preview_zapisi { width: 70px; height: 70px; border-radius: 50%; object-fit: cover; border: 3px solid #e0524a; background: #000; }
 
-        .post_media_panel { display: flex; gap: 6px; align-items: center; flex-wrap: wrap; margin-bottom: 8px; }
-        .post_media_btn { cursor: pointer; padding: 5px 10px; background: #eceff5; border: 1px solid #bdc7d8; border-radius: 3px; font-size: 11px; color: #333; display: inline-flex; align-items: center; gap: 4px; }
-        .post_media_btn:hover { background: #d8dfea; }
-        .post_pending_media_info { font-size: 11px; color: #3b5998; font-weight: bold; }
-        .post_pending_media_clear { color: #cc0000; cursor: pointer; margin-left: 6px; font-weight: bold; text-decoration: underline; }
+        .post_media_panel { display: flex; gap: 7px; align-items: center; flex-wrap: wrap; margin-bottom: 9px; }
+        .post_media_btn { cursor: pointer; padding: 6px 11px; background: linear-gradient(180deg,#fafcfe,#e3ecf6); border: 1px solid #c2d3e6; border-radius: 6px; font-size: 11px; color: #44505c; display: inline-flex; align-items: center; gap: 4px; box-shadow: 0 1px 0 rgba(255,255,255,0.6) inset; }
+        .post_media_btn:hover { background: linear-gradient(180deg,#eaf2fb,#d7e6f5); }
+        .post_pending_media_info { font-size: 11px; color: #2f6fb0; font-weight: bold; }
+        .post_pending_media_clear { color: #d9534f; cursor: pointer; margin-left: 6px; font-weight: bold; text-decoration: underline; }
+
+        /* === ИНДИКАТОР ОТЛАДКИ МЕССЕНДЖЕРА (видно только когда есть проблема со связью) === */
+        .msg_debug_warn { font-size: 10px; color: #a8312a; background: linear-gradient(180deg,#fcdedb,#f9c5c0); border: 1px solid #e0524a; border-radius: 6px; padding: 5px 9px; margin-bottom: 7px; }
     </style>
+
 </head>
 <body>
 
@@ -245,7 +402,7 @@
         <input id="osika_v_teset" type="password" class="tekstovoe_pole" placeholder="Пароль" maxlength="60" autocomplete="current-password">
         <button id="knopka_vxoda" class="knopka_sinyaya" style="margin-bottom:6px; width:100%;">Войти</button>
         <button id="knopka_regi" class="knopka_seraya" style="width:100%;">Регистрация</button>
-        
+
         <div id="captcha_block" class="captcha_box skritiy_blok">
             <div class="captcha_header">Подтвердите, что вы не робот</div>
             <div class="captcha_instruction" id="captcha_instruction">Выберите все изображения с...</div>
@@ -256,7 +413,7 @@
             </div>
             <div id="captcha_status" class="captcha_status skritiy_blok"></div>
         </div>
-        
+
         <div id="oshibka_vvoda" style="color: #dd0000; margin-top: 10px; font-weight: bold; text-align:center; min-height: 16px;"></div>
     </div>
 
@@ -352,6 +509,7 @@
                             </div>
                             <input id="msg_vvod_druga" type="text" class="tekstovoe_pole" placeholder="Ник друга" style="margin-bottom:6px;" maxlength="30">
                             <button id="msg_nachat" class="knopka_sinyaya" style="width:100%;">Написать</button>
+                            <div id="msg_nachat_status" style="font-size:10px; color:#777; margin-top:4px; min-height:12px;"></div>
                         </div>
                         <div class="belaya_korobka" style="padding:6px;">
                             <div class="zagolovok_korobki" style="margin-bottom:4px;">Мои диалоги:</div>
@@ -454,9 +612,9 @@
             const correctCount = 2 + Math.floor(Math.random() * 3);
             const grid = [];
             const correctPositions = new Set();
-            
+
             while (correctPositions.size < correctCount) correctPositions.add(Math.floor(Math.random() * 9));
-            
+
             for (let i = 0; i < 9; i++) {
                 if (correctPositions.has(i)) {
                     grid.push({ emoji: targetEmojis[Math.floor(Math.random() * targetEmojis.length)], isCorrect: true });
@@ -481,7 +639,7 @@
 
         function toggleCaptchaCell(cell, index) {
             if (captchaSolved) return;
-            if (captchaSelectedIndices.has(index)) { captchaSelectedIndices.delete(index); cell.classList.remove('selected'); } 
+            if (captchaSelectedIndices.has(index)) { captchaSelectedIndices.delete(index); cell.classList.remove('selected'); }
             else { captchaSelectedIndices.add(index); cell.classList.add('selected'); }
         }
 
@@ -492,7 +650,7 @@
             const isCorrect = selected.length === correct.length && selected.every((val, i) => val === correct[i]);
             const statusEl = document.getElementById('captcha_status');
             statusEl.classList.remove('skritiy_blok');
-            
+
             if (isCorrect) {
                 captchaSolved = true;
                 statusEl.className = 'captcha_status success'; statusEl.textContent = '✓ Верно! Вы не робот.';
@@ -539,7 +697,7 @@
             dmitriy_gundon.on('hi', (peer) => { gun_connected_count++; gun_ever_connected = true; obnovit_status_soedineniya(); });
             dmitriy_gundon.on('bye', (peer) => { gun_connected_count = Math.max(0, gun_connected_count - 1); obnovit_status_soedineniya(); });
         } catch(e) { /* fallback */ }
-        
+
         setTimeout(() => {
             if (gun_connected_count === 0 && !gun_ever_connected) {
                 const dot = document.getElementById('conn_dot'); const txt = document.getElementById('conn_status_text');
@@ -557,23 +715,30 @@
             danya_usera = JSON.parse(localStorage.getItem('vofshiy_yuzer')) || null;
             if (danya_usera && !isValidNick(danya_usera.name)) { danya_usera = null; localStorage.removeItem('vofshiy_yuzer'); }
         } catch(e) { danya_usera = null; localStorage.removeItem('vofshiy_yuzer'); }
-        
+
         let cherniy_banan = [];
         let globalnie_layki = {}, globalnie_profili = {}, tekuschiy_prosmotr_юзера = null;
-        let muted_users = {}; 
+        let muted_users = {};
         let edited_posts = {};
 
         // Переменные мессенджера
         let msg_current_friend = null, msg_editing_id = null, msg_dialogs = {}, msg_cache = {}, msg_pending_image = null;
-        let msg_last_preview = {}; 
-        let msg_unread = {}; 
+        let msg_last_preview = {};
+        let msg_unread = {};
         let msg_typing_timeout_send = null, msg_typing_indicator_timeout = null;
 
-        // Переменные записи медиа (голос/видео) 
+        // ВАЖНО: реестр живых подписок Gun по диалогам/чатам, чтобы корректно отписываться
+        // через .off() при переключении/повторном открытии — без этого подписки множились
+        // на каждый клик по диалогу и сообщения «не доходили» из-за захлёбывающегося рендера.
+        let msg_chatkey_listener_attached = {};   // chatKey -> true, если .map().on() уже висит на messages
+        let msg_typing_listener_attached = {};    // chatKey -> true, если .on() уже висит на typing(friend)
+        let msg_preview_inited = {};              // friend -> true, если превью-листенер уже навешен
+
+        // Переменные записи медиа (голос/видео)
         let media_recorder = null;
         let media_recorder_chunks = [];
-        let media_recorder_kind = null; 
-        let media_recorder_target = null; 
+        let media_recorder_kind = null;
+        let media_recorder_target = null;
         let media_recorder_stream = null;
         let media_recorder_timer = null;
         let media_recorder_seconds = 0;
@@ -586,7 +751,7 @@
         // ============================================================
         document.addEventListener('DOMContentLoaded', () => {
             proverka_kenta();
-            
+
             document.getElementById('knopka_vxoda').addEventListener('click', () => attemptLogin(false));
             document.getElementById('knopka_regi').addEventListener('click', () => {
                 document.getElementById('captcha_block').classList.remove('skritiy_blok');
@@ -595,11 +760,11 @@
             });
             document.getElementById('captcha_verify').addEventListener('click', () => attemptLogin(true));
             document.getElementById('captcha_refresh').addEventListener('click', () => generateCaptcha());
-            
-            document.getElementById('knopka_vixoda').addEventListener('click', (e) => { 
-                e.preventDefault(); kents_v_seti.leave(); localStorage.removeItem('vofshiy_yuzer'); location.reload(); 
+
+            document.getElementById('knopka_vixoda').addEventListener('click', (e) => {
+                e.preventDefault(); kents_v_seti.leave(); localStorage.removeItem('vofshiy_yuzer'); location.reload();
             });
-            
+
             document.getElementById('otpravit_v_lentu').addEventListener('click', () => {
                 if (muted_users[danya_usera.name] && muted_users[danya_usera.name] > Date.now()) {
                     const ostalos = Math.ceil((muted_users[danya_usera.name] - Date.now()) / 60000);
@@ -614,14 +779,14 @@
 
             document.getElementById('post_rec_voice_btn').addEventListener('click', () => media_zapis_toggle('voice', 'post'));
             document.getElementById('post_rec_video_btn').addEventListener('click', () => media_zapis_toggle('video', 'post'));
-            
+
             document.querySelectorAll('[data-tab]').forEach(el => el.addEventListener('click', () => pereklyuchit_vkladku(el.dataset.tab)));
-            
+
             document.addEventListener('click', (e) => {
                 const btn = e.target.closest('[data-action]');
                 if (!btn) return;
                 const action = btn.dataset.action;
-                
+
                 if (action === 'save-nick') sohranit_nick_messengera();
                 else if (action === 'back-my-profile') smotret_svoy_profil();
                 else if (action === 'view-profile') smotret_profil(btn.dataset.nick);
@@ -633,12 +798,12 @@
                 else if (action === 'edit-msg') msg_redaktirovat(btn.dataset.id);
                 else if (action === 'delete-msg') msg_udalit(btn.dataset.id);
             });
-            
+
             document.getElementById('msg_nachat').addEventListener('click', msg_nachat_dialog);
             document.getElementById('msg_poslat').addEventListener('click', msg_otpravit);
             document.getElementById('msg_otmena').addEventListener('click', msg_otmena_redakt);
             document.getElementById('msg_k_chatam').addEventListener('click', msg_k_chatam);
-            
+
             document.getElementById('msg_file').addEventListener('change', (e) => {
                 const file = e.target.files[0];
                 if (!file || !file.type.startsWith('image/')) return alert('Только картинки!');
@@ -647,12 +812,12 @@
                     document.getElementById('msg_imya_fayla').innerText = '📷 ' + escapeHtml(file.name);
                 });
             });
-            
+
             document.getElementById('vibor_ava').addEventListener('change', (e) => {
                 const file = e.target.files[0];
                 if (file && file.type.startsWith('image/')) izmenit_avatar(file);
             });
-            
+
             document.getElementById('msg_vvod').addEventListener('keydown', (e) => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); msg_otpravit(); } });
             document.getElementById('msg_vvod').addEventListener('input', msg_signal_typing);
             document.getElementById('msg_vvod_druga').addEventListener('keydown', (e) => { if (e.key === 'Enter') { e.preventDefault(); msg_nachat_dialog(); } });
@@ -738,9 +903,9 @@
         // === СОЦСЕТЬ И МОДЕРАЦИЯ ===
         // ============================================================
         function proverka_kenta() {
-            if (danya_usera) { 
-                tekuschiy_prosmotr_юзера = danya_usera.name; pereklyuchit_ekran('glavniy_ekran'); init_paneli(); 
-            } 
+            if (danya_usera) {
+                tekuschiy_prosmotr_юзера = danya_usera.name; pereklyuchit_ekran('glavniy_ekran'); init_paneli();
+            }
             else pereklyuchit_ekran('ekran_avtorizacii');
         }
 
@@ -753,17 +918,28 @@
             document.getElementById('okno_lenta').className = imya === 'lenta' ? '' : 'skritiy_blok';
             document.getElementById('okno_profil').className = imya === 'profil' ? '' : 'skritiy_blok';
             document.getElementById('okno_msg').className = imya === 'msg' ? '' : 'skritiy_blok';
-            
+
             document.getElementById('vkladka_lenta_knopka').className = 'vkladka_knopka' + (imya === 'lenta' ? ' aktivnaya_vkladka' : '');
             document.getElementById('vkladka_profil_knopka').className = 'vkladka_knopka' + (imya === 'profil' ? ' aktivnaya_vkladka' : '');
             document.getElementById('vkladka_msg_knopka').className = 'vkladka_knopka' + (imya === 'msg' ? ' aktivnaya_vkladka' : '');
-            
+
             if (imya === 'profil') obnovit_kartochku_profilya();
             if (imya === 'msg') msg_inicializirovat();
             if (imya === 'lenta') risovat_lentu();
         }
 
-        function init_paneli() { slushat_set_ambukov(); slushat_set_laykov(); slushat_set_profiley(); slushat_moderatorov(); }
+        function init_paneli() {
+            slushat_set_ambukov();
+            slushat_set_laykov();
+            slushat_set_profiley();
+            slushat_moderatorov();
+            // ВАЖНО: список диалогов мессенджера начинаем слушать сразу при входе,
+            // а не только при первом открытии вкладки «Мессенджер». Раньше подписка
+            // вешалась лениво (msg_inicializirovat вызывался только из pereklyuchit_vkladku),
+            // и если собеседник писал раньше, чем владелец открывал вкладку — события
+            // от Gun успевали разойтись по сети мимо ещё не существующего слушателя.
+            msg_inicializirovat();
+        }
 
         function slushat_set_ambukov() {
             ambukoviy_graf.map().on((data) => {
@@ -779,15 +955,15 @@
         }
 
         function slushat_set_laykov() { layki_baza.map().on((val, key) => { globalnie_layki[key] = val; risovat_lentu(); risovat_lentu_profilya(); }); }
-        
-        function slushat_set_profiley() { 
-            profili_baza.map().on((val, key) => { 
-                if(key && val && typeof val === 'object') { 
-                    globalnie_profili[key] = { ...globalnie_profili[key], ...val }; 
-                    obnovit_kartochku_profilya(); 
+
+        function slushat_set_profiley() {
+            profili_baza.map().on((val, key) => {
+                if(key && val && typeof val === 'object') {
+                    globalnie_profili[key] = { ...globalnie_profili[key], ...val };
+                    obnovit_kartochku_profilya();
                     document.getElementById('stats_users_count').innerText = `Людей в сети: ${Object.keys(globalnie_profili).length}`;
-                } 
-            }); 
+                }
+            });
         }
 
         function slushat_moderatorov() {
@@ -836,16 +1012,16 @@
         function удалитьПост(p_id) { if(confirm('Удалить навсегда?')) ambukoviy_graf.get(p_id).get('deleted').put(true); }
         function postavit_layk(p_id) { const k = p_id + '_' + danya_usera.name; layki_baza.get(k).put(globalnie_layki[k] === 'yes' ? 'no' : 'yes'); }
         function poluchit_kolvo_laykov(p_id) { return Object.keys(globalnie_layki).filter(k => k.startsWith(p_id + '_') && globalnie_layki[k] === 'yes').length; }
-        
+
         function smotret_profil(username) { if (isValidNick(username)) { tekuschiy_prosmotr_юзера = username; pereklyuchit_vkladku('profil'); } }
         function smotret_svoy_profil() { tekuschiy_prosmotr_юзера = danya_usera.name; obnovit_kartochku_profilya(); }
-        
+
         function sohranit_nick_messengera() {
             const nick = sanitizeNick(document.getElementById('vvod_messenger_nick').value);
             if(!nick) return alert('Укажите ник (латиница, цифры, 2-20 символов)!');
             profili_baza.get(danya_usera.name).get('msgNick').put(nick); alert('Связано!');
         }
-        
+
         // ВАЖНО: Оптимизировано сжатие картинок для мобильных браузеров (чтобы не падало от утечек памяти)
         function szhat_kartinku(file, max_size, callback) {
             const chitalka = new FileReader();
@@ -856,10 +1032,10 @@
                     if (w > max_size || h > max_size) { if (w > h) { h = Math.round((h * max_size) / w); w = max_size; } else { w = Math.round((w * max_size) / h); h = max_size; } }
                     canvas.width = w; canvas.height = h; ctx.drawImage(img, 0, 0, w, h);
                     const result = canvas.toDataURL('image/jpeg', 0.6);
-                    
+
                     // Очищаем canvas из памяти
                     canvas.width = 0; canvas.height = 0;
-                    
+
                     if (isSafeImageUrl(result)) callback(result); else alert('Ошибка обработки');
                 };
                 img.onerror = () => alert('Не удалось загрузить картинку'); img.src = chitalka.result;
@@ -879,15 +1055,15 @@
             if (!tekuschiy_prosmotr_юзера) return;
             document.getElementById('anketa_name').innerText = tekuschiy_prosmotr_юзера;
             document.getElementById('anketa_likes_count').innerText = cherniy_banan.filter(p => p.author === tekuschiy_prosmotr_юзера).reduce((sum, p) => sum + poluchit_kolvo_laykov(p.id), 0);
-            
+
             const p_data = globalnie_profili[tekuschiy_prosmotr_юзера];
-            if (p_data && p_data.regTime) { document.getElementById('anketa_reg_date').innerText = new Date(p_data.regTime).toLocaleDateString(); document.getElementById('anketa_site_age').innerText = rasschitat_vremya_saita(p_data.regTime); } 
+            if (p_data && p_data.regTime) { document.getElementById('anketa_reg_date').innerText = new Date(p_data.regTime).toLocaleDateString(); document.getElementById('anketa_site_age').innerText = rasschitat_vremya_saita(p_data.regTime); }
             else { document.getElementById('anketa_reg_date').innerText = "Недавно"; document.getElementById('anketa_site_age').innerText = "1 мин."; }
 
             const avatarContainer = document.getElementById('profil_avatar_container');
-            if (p_data && p_data.avatar && isSafeImageUrl(p_data.avatar)) { avatarContainer.innerHTML = `<img src="${p_data.avatar}" class="ava_kartinka" alt="Аватар">`; } 
+            if (p_data && p_data.avatar && isSafeImageUrl(p_data.avatar)) { avatarContainer.innerHTML = `<img src="${p_data.avatar}" class="ava_kartinka" alt="Аватар">`; }
             else { avatarContainer.innerHTML = '<span class="ava_zaglushka">👤</span>'; }
-            
+
             document.getElementById('anketa_messenger_nick').innerText = (p_data && p_data.msgNick) ? '@' + p_data.msgNick : 'не указан';
 
             const flag = tekuschiy_prosmotr_юзера === danya_usera.name;
@@ -896,7 +1072,7 @@
             document.getElementById('blok_zagruzki_ava').className = flag ? '' : 'skritiy_blok';
             document.getElementById('blok_knopki_vernutsya').className = flag ? 'skritiy_blok' : '';
             if(flag && p_data && p_data.msgNick) document.getElementById('vvod_messenger_nick').value = p_data.msgNick;
-            
+
             risovat_lentu_profilya();
         }
 
@@ -921,16 +1097,16 @@
 
             const p_data = globalnie_profili[post.author];
             const avaHTML = p_data && p_data.avatar && isSafeImageUrl(p_data.avatar) ? `<img src="${p_data.avatar}" class="mini_ava">` : `<div class="mini_ava" style="display:flex;align-items:center;justify-content:center;">👤</div>`;
-            
+
             let html = `${avaHTML} <div class="pravaya_chast_posta"> <div> <span>${post.mood || '☕'}</span> <a href="#" class="avtor_posta" data-action="view-profile" data-nick="${post.author}">${post.author}</a> <span class="vremya_posta">${post.time || ''}</span> </div> <div class="tekst_posta">${escapeHtml(postText) || ''}</div> ${isEditedByMod ? '<span class="mod_metka">Отредактировано модератором</span>' : ''}`;
-            
+
             if (postImg && isSafeImageUrl(postImg)) html += `<img src="${postImg}" class="kartinka_v_poste" onclick="document.getElementById('modal_img').src=this.src; document.getElementById('modal_kartinki').classList.remove('skritiy_blok');">`;
-            
+
             html += `<div class="line_laykov"> <div class="knopka_serdechko ${globalnie_layki[post.id + '_' + danya_usera.name] === 'yes' ? 'aktivniy_layk' : ''}" data-action="like" data-id="${post.id}"> ♥ ${poluchit_kolvo_laykov(post.id)} </div>`;
-            
+
             if (post.author === danya_usera.name) html += `<button class="knopka_del_posta" data-action="delete-post" data-id="${post.id}">× Удалить</button>`;
             if (isModerator()) html += `<button class="knopka_mod_posta" data-action="mod-mute" data-nick="${post.author}">[Мут 5м]</button> <button class="knopka_mod_posta" data-action="mod-edit" data-id="${post.id}">[Изменить]</button>`;
-            
+
             html += `</div></div>`; el.innerHTML = html;
 
             const pravayaChast = el.querySelector('.pravaya_chast_posta');
@@ -1054,11 +1230,11 @@
         function media_zapis_otmena() {
             const target = media_recorder_target;
             if (media_recorder && media_recorder.state !== 'inactive') {
-                media_recorder.onstop = null; 
+                media_recorder.onstop = null;
                 try { media_recorder.stop(); } catch(e) {}
             }
             media_zapis_ochistka();
-            media_zapis_ostanovit_potok(); 
+            media_zapis_ostanovit_potok();
             media_recorder = null; media_recorder_chunks = [];
             const panel = media_zapis_panel_el(target); if (panel) { panel.classList.add('skritiy_blok'); panel.innerHTML = ''; }
         }
@@ -1067,11 +1243,11 @@
         function media_zapis_stop() {
             media_zapis_ochistka();
             if (media_recorder && media_recorder.state === 'recording') {
-                try { 
+                try {
                     if (media_recorder.requestData) media_recorder.requestData(); // Форсируем сброс буфера перед остановкой
-                    media_recorder.stop(); 
-                } catch(e) { 
-                    media_zapis_ostanovit_potok(); media_recorder = null; 
+                    media_recorder.stop();
+                } catch(e) {
+                    media_zapis_ostanovit_potok(); media_recorder = null;
                 }
             } else {
                 media_zapis_ostanovit_potok();
@@ -1080,12 +1256,12 @@
 
         function media_zapis_obrabotat_rezultat() {
             const target = media_recorder_target, kind = media_recorder_kind;
-            media_zapis_ostanovit_potok(); 
+            media_zapis_ostanovit_potok();
             const panel = media_zapis_panel_el(target); if (panel) { panel.classList.add('skritiy_blok'); panel.innerHTML = ''; }
             if (!media_recorder_chunks.length) { media_recorder = null; return; }
 
             const rawMime = (media_recorder && media_recorder.mimeType) || (kind === 'video' ? 'video/webm' : 'audio/webm');
-            const mimeType = rawMime.split(';')[0]; 
+            const mimeType = rawMime.split(';')[0];
             const blob = new Blob(media_recorder_chunks, { type: mimeType });
             media_recorder_chunks = []; media_recorder = null;
 
@@ -1179,7 +1355,7 @@
         }
 
         // ============================================================
-        // === МЕССЕНДЖЕР (ОБНОВЛЁННЫЙ ИНТЕРФЕЙС) ===
+        // === МЕССЕНДЖЕР (ИСПРАВЛЕННАЯ ЛОГИКА ПОДПИСОК) ===
         // ============================================================
         let msg_inited = false;
         function msg_inicializirovat() {
@@ -1188,10 +1364,14 @@
                 if (!key || key === '_') return;
                 let time = typeof val === 'number' ? val : (val && (val.time || val.timestamp)) ? (val.time || val.timestamp) : 0;
                 if (time > 0) { msg_dialogs[key] = time; msg_podgruzit_preview(key); msg_risovat_spisok(); }
+                else if (msg_dialogs[key]) {
+                    // Диалог был обнулён (например, очищена переписка) — убираем из списка,
+                    // иначе он «зависал» бы в сайдбаре даже когда реальных сообщений нет.
+                    delete msg_dialogs[key]; msg_risovat_spisok();
+                }
             });
         }
 
-        let msg_preview_inited = {};
         function msg_podgruzit_preview(friend) {
             if (msg_preview_inited[friend]) return; msg_preview_inited[friend] = true;
             const chatKey = msg_poluchit_klyuch(danya_usera.name, friend);
@@ -1201,6 +1381,8 @@
                 if (!existing || (data.timestamp || 0) >= (existing.timestamp || 0)) {
                     let previewText = data.deleted ? '🗑 сообщение удалено' : (data.video ? '🎥 видео-кружок' : (data.voice ? '🎤 голосовое' : (data.img ? '📷 фото' : (data.text || ''))));
                     msg_last_preview[friend] = { text: previewText, timestamp: data.timestamp || 0, from: data.from };
+                    // Считаем непрочитанным только то, что реально новее последнего открытия чата,
+                    // и только если сейчас не смотрим именно этот диалог.
                     if (data.from !== danya_usera.name && msg_current_friend !== friend) {
                         msg_unread[friend] = (msg_unread[friend] || 0) + 1;
                     }
@@ -1220,7 +1402,7 @@
             const friends = Object.keys(msg_dialogs).sort((a, b) => (msg_dialogs[b] || 0) - (msg_dialogs[a] || 0));
             cont.innerHTML = '';
             if (friends.length === 0) return cont.innerHTML = '<div class="msg_net">Нет диалогов. Начните новый выше 👆</div>';
-            
+
             const frag = document.createDocumentFragment();
             friends.forEach(friend => {
                 const el = document.createElement('div'); el.className = 'msg_dialog_el' + (msg_current_friend === friend ? ' aktivniy' : '');
@@ -1250,17 +1432,61 @@
 
         function msg_nachat_dialog() {
             const friend = sanitizeNick(document.getElementById('msg_vvod_druga').value);
+            const statusEl = document.getElementById('msg_nachat_status');
+            if (statusEl) statusEl.textContent = '';
             if (!friend) return alert('Введите ник друга!');
             if (friend === danya_usera.name) return alert('Нельзя написать самому себе 🙂');
+
+            // ВАЖНО: явная проверка существования профиля друга через .once(), чтобы дать
+            // понятную обратную связь, если ник введён с опечаткой — раньше диалог создавался
+            // «вслепую» и выглядел рабочим, даже если адресат вообще не существует в сети,
+            // и непонятно было, почему сообщения «никуда не доходят».
+            if (statusEl) statusEl.innerHTML = '<span class="vxod_spinner" style="border-top-color:#3b5998;border-color:rgba(59,89,152,0.3);"></span>Проверяем пользователя...';
+            let otvetil = false;
+            const proverkaTimeout = setTimeout(() => {
+                if (otvetil) return; otvetil = true;
+                if (statusEl) statusEl.innerHTML = '⚠ Сеть не отвечает, открываем диалог без проверки';
+                msg_zapustit_dialog(friend);
+            }, 4000);
+
+            profili_baza.get(friend).once((data) => {
+                if (otvetil) return; otvetil = true; clearTimeout(proverkaTimeout);
+                if (!data) {
+                    if (statusEl) statusEl.innerHTML = `⚠ Пользователь «${escapeHtml(friend)}» не найден в сети. Проверьте ник — диалог всё равно открыт, сообщения дойдут, когда он зарегистрируется или появится в сети.`;
+                } else if (statusEl) {
+                    statusEl.textContent = '';
+                }
+                msg_zapustit_dialog(friend);
+            });
+        }
+
+        function msg_zapustit_dialog(friend) {
             document.getElementById('msg_vvod_druga').value = '';
             const now = Date.now();
-            msg_chats_db.get(danya_usera.name).get(friend).put(now); msg_chats_db.get(friend).get(danya_usera.name).put(now);
+            msg_chats_db.get(danya_usera.name).get(friend).put(now);
+            msg_chats_db.get(friend).get(danya_usera.name).put(now);
             msg_otkrit_dialog(friend);
         }
 
         function msg_otkrit_dialog(friend) {
             if (!isValidNick(friend)) return;
             media_zapis_otmena();
+
+            // ВАЖНО: если уже был открыт другой диалог — снимаем со старого чата
+            // слушатель сообщений и индикатор «печатает». Раньше .off() не вызывался
+            // вообще, и при каждом переключении между диалогами на старом chatKey
+            // оставалась висеть отдельная Gun-подписка. Через несколько переключений
+            // один и тот же входящий .put() начинал обрабатываться по N раз —
+            // визуально это выглядело как «сообщения теряются / приходят через раз»,
+            // потому что рендер захлёбывался и DOM пересобирался лишний раз.
+            if (msg_current_friend && msg_current_friend !== friend) {
+                const oldChatKey = msg_poluchit_klyuch(danya_usera.name, msg_current_friend);
+                msg_messages_db.get(oldChatKey).map().off();
+                msg_typing_db.get(oldChatKey).get(msg_current_friend).off();
+                delete msg_chatkey_listener_attached[oldChatKey];
+                delete msg_typing_listener_attached[oldChatKey];
+            }
+
             msg_current_friend = friend; msg_editing_id = null; msg_otmena_redakt(); msg_pending_image = null; msg_pending_voice = null; msg_pending_video = null;
             msg_unread[friend] = 0;
             document.getElementById('msg_imya_fayla').innerText = ''; document.getElementById('msg_file').value = '';
@@ -1272,6 +1498,15 @@
         }
 
         function msg_k_chatam() {
+            // Отписываемся от текущего чата при возврате к списку диалогов —
+            // подписка пересоздастся при следующем открытии того же диалога.
+            if (msg_current_friend) {
+                const chatKey = msg_poluchit_klyuch(danya_usera.name, msg_current_friend);
+                msg_messages_db.get(chatKey).map().off();
+                msg_typing_db.get(chatKey).get(msg_current_friend).off();
+                delete msg_chatkey_listener_attached[chatKey];
+                delete msg_typing_listener_attached[chatKey];
+            }
             msg_current_friend = null; document.getElementById('msg_chat_area').className = 'msg_chat_area skritiy'; document.getElementById('msg_sidebar').className = 'msg_sidebar';
         }
         function msg_poluchit_klyuch(n1, n2) { return [n1, n2].sort().join('___'); }
@@ -1279,12 +1514,20 @@
         function msg_slushat_soobsheniya() {
             if (!msg_current_friend) return;
             const chatKey = msg_poluchit_klyuch(danya_usera.name, msg_current_friend);
+            // Защита от повторной подписки на тот же chatKey (на случай гонки кликов) —
+            // именно отсутствие этой проверки раньше приводило к множественным .on()
+            // на одной и той же Gun-ноде сообщений.
+            if (msg_chatkey_listener_attached[chatKey]) return;
+            msg_chatkey_listener_attached[chatKey] = true;
+            const friend_snapshot = msg_current_friend;
             msg_messages_db.get(chatKey).map().on((data, msgId) => {
                 if (!msgId || msgId === '_') return;
                 if (!data) delete msg_cache[msgId];
                 else if (data.deleted) msg_cache[msgId] = { id: msgId, deleted: true, timestamp: data.timestamp || 0 };
                 else msg_cache[msgId] = { ...data, id: msgId };
-                msg_risovat_soobsheniya();
+                // Перерисовываем только если пользователь до сих пор смотрит именно этот диалог —
+                // подписка может «дозвониться» уже после того, как пользователь переключился дальше.
+                if (msg_current_friend === friend_snapshot) msg_risovat_soobsheniya();
             });
         }
 
@@ -1299,9 +1542,11 @@
         function msg_slushat_typing() {
             if (!msg_current_friend) return;
             const key = msg_poluchit_klyuch(danya_usera.name, msg_current_friend);
+            if (msg_typing_listener_attached[key]) return;
+            msg_typing_listener_attached[key] = true;
             const friendImya = msg_current_friend;
             msg_typing_db.get(key).get(friendImya).on((ts) => {
-                if (msg_current_friend !== friendImya) return; 
+                if (msg_current_friend !== friendImya) return;
                 const indikator = document.getElementById('msg_pechataet_indikator');
                 if (!indikator) return;
                 if (ts && (Date.now() - ts) < 3000) {
@@ -1325,7 +1570,7 @@
                 const el = document.createElement('div');
                 if (msg.deleted) { el.className = 'msg_balun udaleno'; el.textContent = '🗑 Сообщение удалено'; frag.appendChild(el); return; }
                 const moi = msg.from === danya_usera.name; el.className = 'msg_balun ' + (moi ? 'moi' : 'chuzhoi');
-                
+
                 if (msg.text) { const textDiv = document.createElement('div'); textDiv.textContent = msg.text; el.appendChild(textDiv); }
                 if (msg.img && isSafeImageUrl(msg.img)) {
                     const img = document.createElement('img'); img.src = msg.img; img.className = 'msg_kartinka_balun';
@@ -1334,12 +1579,12 @@
                 }
                 if (msg.voice && isSafeAudioUrl(msg.voice)) el.appendChild(sozdat_golos_player(msg.voice));
                 if (msg.video && isSafeVideoUrl(msg.video)) el.appendChild(sozdat_video_kruzhok(msg.video));
-                
+
                 const footer = document.createElement('div');
                 const timeSpan = document.createElement('span'); timeSpan.className = 'msg_vremya_soob'; timeSpan.textContent = msg.time || ''; footer.appendChild(timeSpan);
                 if (msg.edited) { const redSpan = document.createElement('span'); redSpan.className = 'msg_metka_red'; redSpan.textContent = ' (ред.)'; footer.appendChild(redSpan); }
                 if (moi) {
-                    if (!msg.voice && !msg.video) { 
+                    if (!msg.voice && !msg.video) {
                         const editBtn = document.createElement('button'); editBtn.className = 'msg_knopka_act redakt'; editBtn.textContent = '✎ изм.'; editBtn.dataset.action="edit-msg"; editBtn.dataset.id=msg.id; footer.appendChild(editBtn);
                     }
                     const delBtn = document.createElement('button'); delBtn.className = 'msg_knopka_act udalit'; delBtn.textContent = '🗑 удл.'; delBtn.dataset.action="delete-msg"; delBtn.dataset.id=msg.id; footer.appendChild(delBtn);
@@ -1352,11 +1597,11 @@
         function msg_otpravit() {
             const input = document.getElementById('msg_vvod'); const text = input.value.trim();
             if ((!text && !msg_pending_image && !msg_pending_voice && !msg_pending_video) || !msg_current_friend) return;
-            
+
             // ВАЖНО: Очищаем инпут мгновенно, чтобы создать ощущение моментального отклика
-            input.value = ''; 
+            input.value = '';
             input.focus();
-            
+
             const chatKey = msg_poluchit_klyuch(danya_usera.name, msg_current_friend);
             const time = new Date().toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'}); const timestamp = Date.now();
 
